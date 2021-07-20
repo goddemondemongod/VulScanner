@@ -8,6 +8,7 @@ from django.shortcuts import render
 from ScanTaskModel.models import ScanTask
 from ServiceScanModel.models import ServiceScan
 from VulnScanModel.models import VulnScan
+from UserModel.models import User
 
 from . import serviceUtil, pageUtil, fileUtil, vulnUtil, pocUtil, pocModelUtil, ExpUtil, IpModelUtil
 
@@ -27,10 +28,26 @@ port_label = {
 
 poc_type_list = pocModelUtil.poc_type_list
 
+
+def _auth():  # args 是传入的，需要验证的权限
+    def __auth(func):
+        def _login(request, *args):
+            if request.session.get('user', False):  # 判断是否登录
+                print(*args)
+                return func(request, *args)  # 权限验证通过，继续执行视图
+            else:  # 否则执行禁止视图
+                return login(request)
+
+        return _login
+
+    return __auth
+
+
 def get_ctx(ctx, showmenu, query="1=1", mode=""):
     ctx["showmenu"] = showmenu
     # task_list = ScanTask.objects.all().extra(where=[query])
-    task_list = ScanTask.objects.all().filter(mode="" if (mode == 'service' or mode == "vuln") else mode).extra(where=[query])
+    task_list = ScanTask.objects.all().filter(mode="" if (mode == 'service' or mode == "vuln") else mode).extra(
+        where=[query])
     if mode == "service":
         ports = []
         for p in port_dict.values():
@@ -41,6 +58,7 @@ def get_ctx(ctx, showmenu, query="1=1", mode=""):
     return ctx
 
 
+@_auth()
 def scan(request: HttpRequest, mode, query):
     ctx = get_ctx({}, False, query, mode)
     each_num = 100
@@ -102,14 +120,17 @@ def scan(request: HttpRequest, mode, query):
     return render(request, "%s_scan.html" % mode, ctx)
 
 
+@_auth()
 def service_scan(request: HttpRequest):
     return scan(request, "service", "1=1")
 
 
+@_auth()
 def vuln_scan(request: HttpRequest):
     return scan(request, "vuln", "vuln_process>0")
 
 
+@_auth()
 def start_scan(request: HttpRequest):
     if request.method == "GET":
         mode = request.GET["mode"]
@@ -120,7 +141,8 @@ def start_scan(request: HttpRequest):
             else:
                 isStart = False
             ips = request.GET["ips"].strip()
-            port_list = port_dict[request.GET["port"]] if request.GET["port"] != '3' else request.GET["port2"].split(",")
+            port_list = port_dict[request.GET["port"]] if request.GET["port"] != '3' else request.GET["port2"].split(
+                ",")
             port_list = [int(i) for i in port_list]
             description = request.GET["description"]
             if not serviceUtil.port_scan(ips, port_list, isStart, description):
@@ -143,6 +165,7 @@ def start_scan(request: HttpRequest):
         return HttpResponse("success")
 
 
+@_auth()
 def get_query(request: HttpRequest):  # 过滤任务
     query = "1=1"
     if "ip" in request.GET:
@@ -160,6 +183,7 @@ def get_query(request: HttpRequest):  # 过滤任务
     return query
 
 
+@_auth()
 def task_list(request: HttpRequest, mode="service"):  # 获取任务列表
     if mode == "ip":
         page_file = "ip_list.html"
@@ -177,10 +201,11 @@ def task_list(request: HttpRequest, mode="service"):  # 获取任务列表
                            "任务", request.get_full_path())
     return render(request, page_file, ctx)
 
-
+@_auth()
 def fofa_list(request: HttpResponse):  # 获取fofa采集结果列表
     return task_list(request, "fofa")
 
+@_auth()
 def export_file(request: HttpRequest):
     data = fileUtil.export_file(request.GET["id"], request.GET["mode"])
     resp = HttpResponse(data)
@@ -189,19 +214,19 @@ def export_file(request: HttpRequest):
     resp["Content-Disposition"] = "attachment; filename=%s_%s.csv" % (request.GET["id"], request.GET["mode"])
     return resp
 
-
+@_auth()
 def delete_task(request: HttpRequest):
     if serviceUtil.delete_task(request.GET["id"]):
         return HttpResponse("success")
 
-
+@_auth()
 def stop_task(request: HttpRequest):
     task = ScanTask.objects.get(id=request.GET["id"])
     task.isPause = not task.isPause
     task.save()
     return HttpResponse("success")
 
-
+@_auth()
 def repeat_scan(request: HttpRequest):
     task_id = request.GET["id"]
     task = ScanTask.objects.get(id=task_id)
@@ -213,10 +238,9 @@ def repeat_scan(request: HttpRequest):
         i.delete()
     return HttpResponse("success")
 
-
+@_auth()
 def fofa_scan(request: HttpRequest):
     return scan(request, "fofa", "mode='fofa'")
-
 
 def get_poc_ctx(ctx, type=""):
     all_down = True
@@ -236,13 +260,13 @@ def get_poc_ctx(ctx, type=""):
     ctx["type"] = poc_type_list
     return ctx
 
-
+@_auth()
 def poc_list(request: HttpRequest):
     if "type" in request.GET:
         if request.GET["type"] == "-1":
             type = "其他"
         else:
-            type = poc_type_list[int(request.GET["type"])-1]
+            type = poc_type_list[int(request.GET["type"]) - 1]
     else:
         type = ""
     ctx = get_poc_ctx({}, type)
@@ -256,17 +280,51 @@ def poc_list(request: HttpRequest):
                            "POC", request.get_full_path())
     return render(request, "poc_list.html", ctx)
 
-
+@_auth()
 def add_poc(request: HttpRequest):
     pocModelUtil.add_poc(request)
     return HttpResponse("success")
 
+@_auth()
 def exp(request: HttpRequest):
     return HttpResponse(ExpUtil.exp(request))
 
+@_auth()
 def ip_scan(request: HttpRequest):
     return scan(request, "ip", "1=1")
 
-
+@_auth()
 def ip_list(request: HttpRequest):
     return task_list(request, "ip")
+
+def login(request: HttpRequest):
+    if request.method == "GET":
+        if not "user" in request.session:
+            return render(request, "login.html", {"showmenu": False})
+        else:
+            return render(request, "menu.html", {"showmenu": True})
+    else:
+        username = request.POST["name"]
+        pwd = request.POST["pwd"]
+        try:
+            user = User.objects.get(username=username)
+            if pwd == user.password:
+                request.session["user"] = "admin"
+                return render(request, "menu.html", {"showmenu": True})
+            else:
+                raise Exception
+        except:
+            return render(request, "login.html", {"showmenu": False})
+
+
+def logout(request: HttpRequest):
+    request.session.flush()
+    return render(request, "login.html", )
+
+@_auth()
+def user(request: HttpRequest):
+    user = User.objects.get(username=request.session["user"])
+    if request.method == "POST":
+        user.password = request.POST["passwd"]
+        user.save()
+    return render(request, "user.html", {"showmenu": True, "username": user.username, "passwd": user.password})
