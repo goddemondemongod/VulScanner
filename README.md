@@ -707,7 +707,7 @@ exp.py:
 
    `python manage.py migrate`
 
- 5. 配置初始poc：
+ 5. 配置初始数据库：
 
     `python install.py`
 
@@ -721,4 +721,10 @@ exp.py:
 
 7. 访问<http://127.0.0.1:8000/>:
 
-   ![6976fc4e95df8051abdf65147d74956d.png](images/Image%20[77].png)
+   ![image-20210720224214877](images/image-20210720224214877.png)
+   
+   初始用户为admin/admin，登录后可进入”用户信息“模块修改密码：
+   
+   ![image-20210720224449467](images/image-20210720224449467.png)
+   
+   ![image-20210720224538008](images/image-20210720224538008.png)
