@@ -1,0 +1,48 @@
+{% extends "menu.html" %}
+{% block mainbody %}
+    <style>
+        .form-control {
+            color: crimson;
+            font-size: medium;
+        }
+    </style>
+
+    <div class="container-fluid col-md-8 col-md-offset-2">
+        <div class="text-center">
+            <h4 class="page-header" style="margin: 5px"><strong style="color: chocolate">用户信息</strong></h4>
+            <div class="row" style="margin-top: 10px">
+                <div style="">
+                    <form action="/user/" method="post">
+                        {% csrf_token %}
+                        <table class="table">
+                            <row>
+                                <div class="col-md-12" style="margin: 10px">
+                                    <div class="col-md-2 col-md-offset-1">
+                                        <label for="name">用户名</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input class="form-control" id="name" name="name" value="{{ username }}" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-md-12" style="margin: 10px">
+                                    <div class="col-md-2 col-md-offset-1">
+                                        <label for="passwd">密码</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input class="form-control" id="passwd" name="passwd" value="{{ passwd }}"/>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary">确认修改</button>
+                            </row>
+                        </table>
+                    </form>
+                </div>
+                {% block managebody %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#manage-ico-{{ manage_ico }}").addClass("active")
+    </script>
+{% endblock %}

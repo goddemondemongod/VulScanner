@@ -16,11 +16,8 @@ mysql_config = {  # for mysql and postgresql
         "connect_timeout": 1
     }
 
-def exec_sql(conn, sql):
-    pass
-
 if __name__ == '__main__':
-    sql_file = open("poc.sql", "rb")
+    sql_file = open("install.sql", "rb")
     try:
         conn = pymysql.connect(**mysql_config)
         cursor = conn.cursor()
@@ -33,4 +30,5 @@ if __name__ == '__main__':
         conn.close()
         print("[+]install pocs success")
     except Exception as e:
+        print(e)
         print("[-]can't connect to mysql")
