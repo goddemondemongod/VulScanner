@@ -8,11 +8,11 @@ settings.configure()
 conf = configparser.ConfigParser()
 conf.read(os.getcwd() + "/" + "config.ini")
 mysql_config = {  # for mysql and postgresql
-        'host': conf.get('global', 'ip'),
-        'port': int(conf.get('global', 'port')),
-        'user': conf.get('global', 'uname'),
-        'password': conf.get('global', 'passwd'),
-        'database': conf.get('global', 'table'),
+        'host': conf.get('db', 'ip'),
+        'port': int(conf.get('db', 'port')),
+        'user': conf.get('db', 'uname'),
+        'password': conf.get('db', 'passwd'),
+        'database': conf.get('db', 'table'),
         "connect_timeout": 1
     }
 
