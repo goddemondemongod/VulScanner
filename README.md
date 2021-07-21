@@ -697,6 +697,10 @@ exp.py:
 
    ![image-20210719224858111](images/image-20210719224858111.png)
 
+   并配置FOFA用户名及key：
+
+   ![image-20210722002636485](images/image-20210722002636485.png)
+
 2. 登录mysql数据库创建名为scan的数据库
 
 3. 命令行安装所需第三方库：```pip install -r requirements.txt```
@@ -728,3 +732,8 @@ exp.py:
    ![image-20210720224449467](images/image-20210720224449467.png)
    
    ![image-20210720224538008](images/image-20210720224538008.png)
+   
+   修改config.ini中的isLogin为True则可免登录使用：
+   
+   ![image-20210722002924263](images/image-20210722002924263.png)
+
