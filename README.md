@@ -697,7 +697,7 @@ exp.py:
 
    ![image-20210719224858111](images/image-20210719224858111.png)
 
-   并配置FOFA用户名及key：
+   配置FOFA用户名及key：
 
    ![image-20210722002636485](images/image-20210722002636485.png)
 
