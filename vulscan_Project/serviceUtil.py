@@ -1,6 +1,8 @@
 import base64
 import json
 import re
+import configparser
+import os
 
 import threading
 import socket
@@ -13,8 +15,11 @@ from ScanTaskModel.models import ScanTask
 from VulnScanModel.models import VulnScan
 from . import IpUtil, requestUtil
 
-FOFA_EMAIL = "512147466@qq.com"
-FOFA_KEY = "c93af87abe5c61bf106e9d601e15555a"
+conf = configparser.ConfigParser()
+conf.read((os.path.dirname(os.path.abspath("settings.py"))) + "\config.ini")
+FOFA_EMAIL = conf.get("setting", "FOFA_EMAIL")
+FOFA_KEY = conf.get("setting", "FOFA_KEY")
+
 
 port_label = {
     1433: "mssql-1433",
@@ -175,7 +180,8 @@ def delete_task(task_id):
 
 
 def fofa_scan(query, isStart=False, description=""):
-    print(query)
+    print(FOFA_EMAIL)
+    print(FOFA_KEY)
     if not "country" in query:
         query += ' && country="CN" && region != "HK"'
     b_query = base64.b64encode(query.encode()).decode()

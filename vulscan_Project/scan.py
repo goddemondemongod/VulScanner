@@ -1,6 +1,8 @@
 import codecs
+import os
 import re
 import traceback
+import configparser
 
 from django.http import HttpRequest, HttpResponse, FileResponse
 from django.shortcuts import render
@@ -28,12 +30,14 @@ port_label = {
 
 poc_type_list = pocModelUtil.poc_type_list
 
+conf = configparser.ConfigParser()
+conf.read((os.path.dirname(os.path.abspath("settings.py"))) + "\config.ini")
+
 
 def _auth():  # args 是传入的，需要验证的权限
     def __auth(func):
         def _login(request, *args):
-            if request.session.get('user', False):  # 判断是否登录
-                print(*args)
+            if request.session.get('user', False) or conf.get("setting", "isLogin") == "True":  # 判断是否登录
                 return func(request, *args)  # 权限验证通过，继续执行视图
             else:  # 否则执行禁止视图
                 return login(request)
@@ -201,9 +205,11 @@ def task_list(request: HttpRequest, mode="service"):  # 获取任务列表
                            "任务", request.get_full_path())
     return render(request, page_file, ctx)
 
+
 @_auth()
 def fofa_list(request: HttpResponse):  # 获取fofa采集结果列表
     return task_list(request, "fofa")
+
 
 @_auth()
 def export_file(request: HttpRequest):
@@ -214,10 +220,12 @@ def export_file(request: HttpRequest):
     resp["Content-Disposition"] = "attachment; filename=%s_%s.csv" % (request.GET["id"], request.GET["mode"])
     return resp
 
+
 @_auth()
 def delete_task(request: HttpRequest):
     if serviceUtil.delete_task(request.GET["id"]):
         return HttpResponse("success")
+
 
 @_auth()
 def stop_task(request: HttpRequest):
@@ -225,6 +233,7 @@ def stop_task(request: HttpRequest):
     task.isPause = not task.isPause
     task.save()
     return HttpResponse("success")
+
 
 @_auth()
 def repeat_scan(request: HttpRequest):
@@ -238,9 +247,11 @@ def repeat_scan(request: HttpRequest):
         i.delete()
     return HttpResponse("success")
 
+
 @_auth()
 def fofa_scan(request: HttpRequest):
     return scan(request, "fofa", "mode='fofa'")
+
 
 def get_poc_ctx(ctx, type=""):
     all_down = True
@@ -259,6 +270,7 @@ def get_poc_ctx(ctx, type=""):
     }
     ctx["type"] = poc_type_list
     return ctx
+
 
 @_auth()
 def poc_list(request: HttpRequest):
@@ -280,29 +292,34 @@ def poc_list(request: HttpRequest):
                            "POC", request.get_full_path())
     return render(request, "poc_list.html", ctx)
 
+
 @_auth()
 def add_poc(request: HttpRequest):
     pocModelUtil.add_poc(request)
     return HttpResponse("success")
 
+
 @_auth()
 def exp(request: HttpRequest):
     return HttpResponse(ExpUtil.exp(request))
+
 
 @_auth()
 def ip_scan(request: HttpRequest):
     return scan(request, "ip", "1=1")
 
+
 @_auth()
 def ip_list(request: HttpRequest):
     return task_list(request, "ip")
 
+
 def login(request: HttpRequest):
     if request.method == "GET":
-        if not "user" in request.session:
-            return render(request, "login.html", {"showmenu": False})
-        else:
+        if request.session.get("user", False) or conf.get("setting", "isLogin") == "True":
             return render(request, "menu.html", {"showmenu": True})
+        else:
+            return render(request, "login.html", {"showmenu": False})
     else:
         username = request.POST["name"]
         pwd = request.POST["pwd"]
@@ -320,6 +337,7 @@ def login(request: HttpRequest):
 def logout(request: HttpRequest):
     request.session.flush()
     return render(request, "login.html", )
+
 
 @_auth()
 def user(request: HttpRequest):

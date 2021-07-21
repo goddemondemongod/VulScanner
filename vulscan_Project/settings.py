@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "VulnScanModel",
     "PocModel",
     "IpModel",
+    "UserModel",
 ]
 
 MIDDLEWARE = [
@@ -88,11 +89,11 @@ WSGI_APPLICATION = 'vulscan_Project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # 使用mysql这样写就行了，是指明引擎的
-        'NAME': conf.get('global', 'table'),  # 库名
-        'USER': conf.get('global', 'uname'),  # 用户名
-        'PASSWORD': conf.get('global', 'passwd'),  # 密码
-        'HOST': conf.get('global', 'ip'),  # 数据库主机ip
-        'PORT': conf.get('global', 'port'),  # 数据库端口号
+        'NAME': conf.get('db', 'table'),  # 库名
+        'USER': conf.get('db', 'uname'),  # 用户名
+        'PASSWORD': conf.get('db', 'passwd'),  # 密码
+        'HOST': conf.get('db', 'ip'),  # 数据库主机ip
+        'PORT': conf.get('db', 'port'),  # 数据库端口号
     }
 }
 

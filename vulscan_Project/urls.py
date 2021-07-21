@@ -20,7 +20,10 @@ from . import test, scan, json
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', test.test),
+    path('', scan.login),
+    path('login/', scan.login),
+    path('logout/', scan.logout),
+    path('user/', scan.user),
     path('scan/tasklist/', scan.task_list),
     path('scan/fofalist/', scan.fofa_list),
     path('scan/poclist/', scan.poc_list),
