@@ -2,7 +2,7 @@
 
 
 
-> 一款适合在渗透测试中随时记录和保存的漏洞检测工具
+> 一款轻便的渗透测试工具
 
 
 
@@ -701,6 +701,10 @@ exp.py:
 
    ![image-20210722002636485](images/image-20210722002636485.png)
 
+   后渗透相关配置：
+
+   ![image-20210801124805713](images/image-20210801124805713.png) 
+
 2. 登录mysql数据库创建名为scan的数据库
 
 3. 命令行安装所需第三方库：```pip install -r requirements.txt```
@@ -736,5 +740,4 @@ exp.py:
    修改config.ini中的isLogin为True则可免登录使用：
    
    ![image-20210722002924263](images/image-20210722002924263.png)
-
 
