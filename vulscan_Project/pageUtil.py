@@ -37,6 +37,7 @@ def get_ctx(ctx, list_name, all_list, page, last_page, query, base_path):
     ctx['notfirst'] = 0 if page == 1 else -1
     ctx['notlast'] = 0 if page == last_page else 1
     ctx['pages'] = get_pages(page, last_page)
+    ctx["last_page"] = last_page
     ctx["query"] = query
     base_path = re.sub(r"((\?)?(&)?page=\w*)", "", base_path)
     ctx["page_url"] = base_path + ("&page=" if "?" in base_path else "?page=")

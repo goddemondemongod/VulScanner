@@ -8,6 +8,7 @@ from ScanTaskModel.models import ScanTask
 from VulnScanModel.models import VulnScan
 from . import IpUtil, pocUtil, pocModelUtil
 from html.parser import HTMLParser
+from django.db import connection
 
 port_label = {
     1433: "mssql-1433",
@@ -29,11 +30,12 @@ type_dict = {
 
 poc_type_list = pocModelUtil.poc_type_list
 
+
 def get_services(query, page=0, each_num=0):
     if page == 0:
-        service_list = VulnScan.objects.extra(where=[query]).values("ip").distinct()
+        service_list = VulnScan.objects.extra(where=[query])
     else:
-        service_list = VulnScan.objects.extra(where=[query]).values("ip").distinct()[
+        service_list = VulnScan.objects.extra(where=[query])[
                        (page - 1) * each_num:page * each_num]
     return service_list
 
@@ -45,28 +47,40 @@ def get_count(task_id, page=0, each_num=0):  # 获取结果集总数
     return service_list.count()
 
 
-def get_results(task_id, isAll=False, page=0, each_num=0):  # 获取扫描结果，isAll=True获取所有结果，否则获取未显示结果
+def get_results(task_id, isAll=False, page=1, each_num=100):  # 获取扫描结果，isAll=True获取所有结果，否则获取未显示结果
+    select_sql = "select vulnscanmodel_vulnscan.id, vulnscanmodel_vulnscan.ip, servicescanmodel_servicescan.port, vulnscanmodel_vulnscan.port, vulnscanmodel_vulnscan.url, vulnerability, risk, vulnscanmodel_vulnscan.description, servicescanmodel_servicescan.title, servicescanmodel_servicescan.server, servicescanmodel_servicescan.type from vulnscanmodel_vulnscan  INNER join servicescanmodel_servicescan  on (servicescanmodel_servicescan.ip = vulnscanmodel_vulnscan.ip and servicescanmodel_servicescan.taskid=vulnscanmodel_vulnscan.taskid) where {query}"
+    update_sql = "update  vulnscanmodel_vulnscan set isShown=1 where id = {id}"
     result_list = []
     if isAll:
         query = "1=1"
     else:
-        query = "isShown=False"
-    query += " and taskid=%s" % (task_id)
-    vuln_list = get_services(query, page, each_num)
-    for i in vuln_list:
-        result = {}
-        result["ip"] = i["ip"]
-        query_ip = query + " and ip='%s'" % i['ip']
-        result["ports"] = []
-        result["vulns"] = []
-        for v in VulnScan.objects.extra(where=[query_ip]):
-            result["vulns"].append(v)
-            v.isShown = True
-            v.save()
-        for p in ServiceScan.objects.extra(where=[query_ip.replace("isShown=False", "1=1")+"and url!=''"]).order_by("type"):
-            result["ports"].append({"label": port_label[p.port] if p.port in port_label else "http-%d" % p.port,
-                                    "type": p.type, "title": p.title, "server": p.server, "url": p.url,
-                                    "port": p.port})
+        query = "vulnscanmodel_vulnscan.isShown=False"
+    query += " and vulnscanmodel_vulnscan.taskid=%s limit %d, %d" % (task_id, (page - 1) * each_num, each_num)
+    print(query)
+    result = {}
+    temp_ip = ""
+    cursor = connection.cursor()
+    cursor.execute(select_sql.format(query=query))
+    keys = ["id", "ip", "sport", "vport", "url", "vulnerability", "risk", "description", "title", "server", "type"]
+    raws = cursor.fetchall()
+    for raw in raws:
+        i = dict(zip(keys, raw))
+        if i["ip"] != temp_ip:
+            temp_ip = i["ip"]
+            if result:
+                result_list.append(result)
+                result = {}
+            result["ip"] = i["ip"]
+            result["ports"] = []
+            result["vulns"] = []
+        vuln = {"port": i["vport"], "vulnerability": i["vulnerability"], "risk": i["risk"], "description": i["description"], "id": i["id"]}
+        if not vuln in result["vulns"]:
+            result["vulns"].append(vuln)
+        result["ports"].append({"label": port_label[i["sport"]] if i["sport"] in port_label else "http-%d" % i["sport"],
+                                "type": i["type"], "title": i["title"], "server": i["server"], "url": i["url"],
+                                "port": i["sport"]})
+        cursor.execute(update_sql.format(id=i["id"]))
+    if result:
         result_list.append(result)
     return result_list
 
@@ -74,7 +88,7 @@ def get_results(task_id, isAll=False, page=0, each_num=0):  # 获取扫描结果
 def vuln_scan(task_id, vuln_type=0):
     q = "isUse=1"
     if vuln_type > 0:
-        q += "& type = %s"%poc_type_list[vuln_type]
+        q += "& type = %s" % poc_type_list[vuln_type]
     print(q)
     try:
         poc_module_list = [(i.poc_name, i.risk, i.poc_name) for i in pocModelUtil.get_pocs(q=q)]
@@ -89,7 +103,9 @@ def vuln_scan(task_id, vuln_type=0):
     def poc():
         for p in poc_list:
             task.vuln_process += 1
+            print(task.vuln_process)
             task.save(update_fields=["vuln_process"])
+            print(p.service.ip)
             p.start()
         for p in poc_list:
             p.join()
@@ -98,14 +114,19 @@ def vuln_scan(task_id, vuln_type=0):
             if not result == [] and type(result) == list:
                 vulnscan = VulnScan(taskid=task_id, ip=p.service.ip, port=p.service.port, url=p.service.url,
                                     vulnerability=result[0],
-                                    description=result[1][:200], risk=result[2], module=result[3], specify=result[4])
+                                    description=result[1][:200], risk=result[2], module=result[3], specify=result[4],
+                                    cookies=p.service.cookies)
                 service_list = ServiceScan.objects.filter(ip=p.service.ip, taskid=task_id)
                 for i in service_list:
                     i.vulnerable = True
                     if not vulnscan.vulnerability in i.note:
                         i.note = ", ".join([i.note, vulnscan.vulnerability]).strip(", ")
                     i.save()
-                vulnscan.save()
+                try:
+                    vulnscan.save()
+                except Exception as e:
+                    print(e)
+                    pass
 
     if int(vuln_type) == 0:
         poc_count = len(poc_module_list)
@@ -118,11 +139,11 @@ def vuln_scan(task_id, vuln_type=0):
     count = 0
     for i in task_list:
         count += 1
-        # print("%s:%s"%(i.ip, i.port))
+        # print("%s:%s"%(i.ip, i["port"]))
         for m in poc_module_list:
-            # 封装入pocUtil中，可多线程并发，入口函数为poc(module, ip, port, url)
+            # 封装入pocUtil中，可多线程并发，入口函数为poc(module, service, port, url)
             poc_list.append(pocUtil.Poc(m[0], i, m[1]))
-            if len(poc_list) % 1 == 0:
+            if len(poc_list) % 5 == 0:
                 poc()
                 poc_list = []
     poc()

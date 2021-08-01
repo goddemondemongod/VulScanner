@@ -16,7 +16,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from . import test, scan, json
+from . import test, scan, json, tool
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,13 +39,21 @@ urlpatterns = [
     path('scan/poc/add/', scan.add_poc),
     path('scan/exp/', scan.exp),
     path('scan/ip/', scan.ip_scan),
+    path('scan/add/group/', scan.add_group),
+    path('scan/move/group/', scan.move_group),
+    path('scan/delete/group/', scan.delete_group),
+    path('scan/config/group/', scan.config_group),
     path('json/refresh/', json.get_async_result),
     path('json/id/', json.get_task_id),
     path('json/edit/', json.edit),
     path('json/poc/', json.use_poc),
     path('json/exp/', json.get_exp),
+    path('json/group/', json.get_group),
     path('json/switch/service/', json.switch_service),
     path('json/add/note/', json.add_note),
     path('json/clear/note/', json.clear_note),
     path('json/switch/poc/', json.switch_poc),
+    path('tool/cmd/', tool.cmd),
+    path('tool/pwdlist/', tool.pwd_list),
+    path('tool/add/pwd/', tool.add_pwd),
 ]

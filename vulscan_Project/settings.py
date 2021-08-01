@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "PocModel",
     "IpModel",
     "UserModel",
+    "PwdModel",
+    "GroupModel",
 ]
 
 MIDDLEWARE = [
@@ -124,9 +126,12 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
-USE_TZ = True
+USE_TZ = False
+
+DATETIME_FORMAT="%Y-%m-%d%H:%M:%S"
+DATE_FORMAT = 'Y-m-d'
 
 X_FRAME_OPTIONS = 'ALLOWALL *'
 

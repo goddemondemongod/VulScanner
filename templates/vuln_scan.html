@@ -26,17 +26,31 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-2 col-md-offset-1"><strong>扫描ip范围</strong></div>
+            <div class="col-md-3">
+                <div class="col-md-6">
+                    <label class="text-right">切换分组</label>
+                </div>
+                <div class="col-md-6">
+                    <select class="selectpicker col-md-pull-4 cmd" id="group" data-width="150px">
+                        {% for i in groups %}
+                            <option value="{{ i.id }}">{{ i.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-1"><label>ip范围</label></div>
             <div class="col-md-7 input-group">
                 <input class="form-control m-auto" name="ip" id="ip" value="{{ new_ip }}"/>
                 <input type="hidden" name="type" id="port" value="{{ type }}">
+                {% csrf_token %}
                 <div class="input-group-btn drop-down" style="">
                     <button type="button" class="btn btn-default dropdown-toggle port-range" onclick="$()"
                             data-toggle="dropdown">漏洞类型<span style="margin-left: 3px"><b
                             class="caret"></b></span></button>
                     <ul class="dropdown-menu">
                         {% for i in poc_type_list %}
-                        <li><a href="javascript:void(0)" class="ip-list" id="{{ forloop.counter0 }}">{{ i }}</a></li>
+                            <li><a href="javascript:void(0)" class="ip-list" id="{{ forloop.counter0 }}">{{ i }}</a>
+                            </li>
                         {% endfor %}
                         <li class="divider"></li>
                         <li><a href="javascript:void(0)" class="ip-list" id="-1">全部漏洞</a></li>
@@ -257,14 +271,12 @@
         </div>
     </div>
 {% endblock %}
-{% block servicebody %}
-{% endblock %}
 {% block scriptbody %}
     <script>
         $("#cmd").keypress(function (event) {  /*绑定回车事件*/
             if (event.which === 13)
                 $("#modal-btn").click()
-            })
+        })
 
         function get_exp(id) {
             $.get("/json/exp/", data = {
@@ -376,7 +388,8 @@
             result_count = 0
             $("tbody").html("")
             switch_mode("vuln")
-            $.get("/scan/start/", {
+            $.post("/scan/start/", {
+                "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
                 "id": task_id,
                 "mode": "{{ mode }}",
                 "type": $("#port").val()
@@ -387,12 +400,14 @@
         function test() {
             $.get("/json/id/", function (data) {
                 task_id = (+data)
-                $.get("/scan/start/", {
+                $.post("/scan/start/", {
+                    "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
                     "ips": $("#ip").val(),
                     "mode": "service",
                     "port": "0",
                     "start": "true",
-                    "description": "{{ description }}"
+                    "description": "{{ description }}",
+                    "group": $(".selectpicker").val()
                 }, function () {
                     refresh_process()
                 })
@@ -406,6 +421,7 @@
 
         function repeat() {
             reload_process(0)
+            $(".foot-block").html("")
             $.get("/scan/repeat/", {
                 id: task_id
             }, function () {
@@ -414,8 +430,11 @@
             })
         }
 
-
+        //初始化页面
         $(function () {
+            $(".selectpicker").selectpicker({})
+            $(".selectpicker").val("{{ gid }}")
+
             task_id =
                 {{ task.id }}
                 $("[data-toggle='popover']").on('show.bs.popover', function () {

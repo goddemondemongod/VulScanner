@@ -39,28 +39,32 @@ def test(burp_list):
                 ["ssh弱密码", "用户名: %s<br>密码: %s" % (i.username, i.password)], "%s:%s" % (i.username, i.password))
     return False
 
-def fingerprint(service):
-    try:
-        if service.port == 22:
-            return True
-    except:
-        return False
+class POC:
+    def __init__(self, service: ServiceScan):
+        self.service = service
+        self.result = False
 
+    def fingerprint(self):
+        try:
+            if self.service.port == 22:
+                return True
+        except:
+            return False
 
-def poc(service: ServiceScan):
-    try:
-        info_list = fileUtil.get_burp_list("ssh")
-        burp_list = []
-        for i in info_list:
-            burp_list.append(Burp(service.ip, *(i)))
-            if len(burp_list) % 10 == 0:
-                result = test(burp_list)
-                if result:
-                    return result
-                burp_list = []
-        result = test(burp_list)
-        if result:
-            return result
-    except Exception as e:
-        print(e)
-        return []
+    def poc(self):
+        try:
+            info_list = fileUtil.get_burp_list("ssh")
+            burp_list = []
+            for i in info_list:
+                burp_list.append(Burp(self.service.ip, *i))
+                if len(burp_list) % 10 == 0:
+                    result = test(burp_list)
+                    if result:
+                        return result
+                    burp_list = []
+            result = test(burp_list)
+            if result:
+                return result
+        except Exception as e:
+            print(e)
+            return []

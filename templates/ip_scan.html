@@ -26,11 +26,12 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-2 col-md-offset-1"><strong>地理位置</strong></div>
+            <div class="col-md-2 col-md-offset-1"><label>地理位置</label></div>
             <div class="col-md-9">
                 <div class="col-md-8">
                     <input class="form-control m-auto" name="location" id="ip" value="{{ new_ip }}"/>
                 </div>
+                {% csrf_token %}
                 <div class="input-group-btn drop-down col-md-4" style="">
 
                     <button type="button" class="btn btn-primary" onclick="test()"
@@ -146,6 +147,11 @@
                 },
                 function (data) {
                     $(".table-context").append(data["html"])
+                    $(".glyphicon-share-alt").click(function () {
+                        var ip = $(this).parent().parent().siblings("#ip_0").text().trim()
+                        var location = ($(this).parent().parent().siblings("#location").text().trim().split(" ")[1])
+                        window.location.href = ("/scan/service/?new_ip=" + ip + "&port=0&desc=" + location)
+                    })
                     result_count = data["count"]
                     reload_process((+data["process"]))
                     $("[data-toggle='popover']").hover(function () {
@@ -186,7 +192,8 @@
             $(".foot-block").css("display", "none")
             $.get("/json/id/", function (data) {
                 task_id = (+data)
-                $.get("/scan/start/", {
+                $.post("/scan/start/", {
+                    "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
                     "location": $("#ip").val(),
                     "mode": "{{ mode }}",
                 })
@@ -218,10 +225,10 @@
             {% endif %}
         })
 
-        $(".glyphicon-share-alt").click(function (){
+        $(".glyphicon-share-alt").click(function () {
             var ip = $(this).parent().parent().siblings("#ip_0").text().trim()
             var location = ($(this).parent().parent().siblings("#location").text().trim().split(" ")[1])
-            window.location.href = ("/scan/service/?new_ip=" + ip + "&port=0&desc=" + location)
+            window.location.href = ("/scan/service/?group=2&new_ip=" + ip + "&port=0&desc=" + location)
         })
     </script>
 {% endblock %}

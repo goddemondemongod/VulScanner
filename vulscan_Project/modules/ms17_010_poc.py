@@ -4,6 +4,7 @@
 from .. import requestUtil
 from ServiceScanModel.models import ServiceScan
 
+
 def ms17_010_check(ip):
     import binascii, socket
     negotiate_protocol_request = binascii.unhexlify(
@@ -39,16 +40,22 @@ def ms17_010_check(ip):
     except:
         return False
 
-def fingerprint(service):
-    try:
-        if service.port == 445:
-            return True
-    except:
-        return False
 
-def poc(service: ServiceScan):
-    try:
-        if ms17_010_check(service.ip):
-            return ["MS17_010", "SMB远程缓冲区溢出"]
-    except:
-        return []
+class POC:
+    def __init__(self, service: ServiceScan):
+        self.service = service
+        self.result = False
+
+    def fingerprint(self):
+        try:
+            if self.service.port == 445:
+                return True
+        except:
+            return False
+
+    def poc(self):
+        try:
+            if ms17_010_check(self.service.ip):
+                return ["MS17_010", "SMB远程缓冲区溢出"]
+        except:
+            return []

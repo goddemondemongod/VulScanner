@@ -18,14 +18,16 @@ class Poc(threading.Thread):
 
     def run(self):
         module = __import__("vulscan_Project.modules.%s_poc" % self.module, fromlist=self.module)
-        fingerprint = getattr(module, "fingerprint")
-        poc = getattr(module, "poc")
+        Cls = getattr(module, "POC")
+        cls = Cls(self.service)
+        fingerprint = getattr(cls, "fingerprint")
+        poc = getattr(cls, "poc")
         try:
-            fingerprint_result = fingerprint(self.service)
+            fingerprint_result = fingerprint()
             if fingerprint_result:  # 指纹检测，如满足特征则进行漏洞扫描
                 if not type(fingerprint_result) == bool:
                     self.service.speciality = fingerprint_result
-                self.result = poc(self.service)
+                self.result = poc()
                 if type(self.result) == tuple:
                     self.specify = self.result[1]
                     self.result = self.result[0]
@@ -40,7 +42,8 @@ class Poc(threading.Thread):
                     self.result.append(self.specify)
             else:
                 self.result = []
-        except:
+        except Exception as e:
+            print(e)
             self.result = []
 
     def get_result(self):

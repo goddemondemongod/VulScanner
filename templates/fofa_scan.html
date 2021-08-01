@@ -26,12 +26,13 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-2 col-md-offset-1"><strong>查询语句</strong></div>
+            <div class="col-md-2 col-md-offset-1"><label>查询语句</label></div>
             <div class="col-md-9">
                 <div class="col-md-8">
                     <input class="form-control m-auto" name="ip" id="ip" value="{{ new_ip }}"/>
                     <input type="hidden" name="type" id="port" value="{{ type }}">
                 </div>
+                {% csrf_token %}
                 <div class="input-group-btn drop-down col-md-4" style="">
 
                     <button type="button" class="btn btn-primary" onclick="test()"
@@ -251,7 +252,8 @@ glyphicon-eye-open
             result_count = 0
             $.get("/json/id/", function (data) {
                 task_id = (+data)
-                $.get("/scan/start/", {
+                $.post("/scan/start/", {
+                    "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
                     "ips": $("#ip").val(),
                     "mode": "{{ mode }}",
                     "description": "{{ description }}"

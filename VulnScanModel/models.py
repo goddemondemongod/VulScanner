@@ -1,5 +1,7 @@
 from django.db import models
 
+from ServiceScanModel.models import ServiceScan
+
 
 class VulnScan(models.Model):
     taskid = models.IntegerField(default=1)
@@ -12,5 +14,7 @@ class VulnScan(models.Model):
     isShown = models.BooleanField(default=False)
     module = models.CharField(max_length=50, default="")
     specify = models.CharField(max_length=50, default="")  # 需单独保存的特殊结果
+    cookies = models.CharField(max_length=500, default="")
+
 
 # Create your models here.

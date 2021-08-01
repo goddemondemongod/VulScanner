@@ -72,7 +72,10 @@
                     {% for i in poc_list %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td><strong style="color: #a94442">{{ i.real_name }}</strong></td>
+                            <td><strong class="name" style="color: #a94442" data-toggle="popover"
+                                                           data-placement="auto left"
+                                                           data-content="{{ i.poc_name }}"
+                                                           data-html="false">{{ i.real_name }}</strong></td>
                             <td><strong style="color: chocolate">{{ i.type }}</strong></td>
                             <td><label class="label label-{{ i.risk }}">{{ risk_dict | get_dict:i.risk }}</label>
                             </td>
@@ -224,6 +227,17 @@
         </div>
     </div>
     <script>
+        $(function (){
+            $(".name").hover(function () {
+                            $(this).popover('show')
+                        }, function () {
+                            $(this).popover('hide')
+                        })
+        })
+        $(".name").on('show.bs.popover', function () {
+                            $("#name").not(this).popover("hide")
+                        })
+
         var all_down = "{{ all_down }}"
 
         function switch_all() {

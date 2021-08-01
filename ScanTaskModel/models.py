@@ -15,5 +15,6 @@ class ScanTask(models.Model):
     isPause = models.BooleanField(default=False)
     isStart = models.BooleanField(default=False)
     mode = models.CharField(max_length=50, default="")
+    group = models.CharField(max_length=100, default="1")
 
 # Create your models here.

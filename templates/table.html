@@ -25,12 +25,26 @@
             color: chocolate;
         }
 
+        .unactive {
+            display: none;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
     </style>
     <div class="container col-md-10 col-md-offset-1">
         <div class="panel panel-default text-center">
             <div class="panel-heading " style="font-size: medium">
                 <span class="col-md-offset-4"><span class="glyphicon glyphicon-list"></span>
-                    {% if mode == 'service' %}
+                    {% if mode == 'task' %}
                         扫描任务列表
                     {% elif mode == "fofa" %}
                         FOFA采集列表
@@ -40,8 +54,15 @@
                 </span>
                 <div class="pull-right col-md-4">
                     <div class="col-md-12 col-md-push-2">
-                        <div class="btn-group dropdown col-md-8 col-md-push-1" style="border-radius: 10px">
-                            <button class="btn btn-default" onclick="window.location.href='{% if mode != 'fofa' %}/scan/tasklist/'{% else %}/scan/fofalist/{% endif %}">清空过滤
+                        <div class="btn-group dropdown col-md-8 col-md-push-1 {% if mode == "service" %} pull-right {% endif %}"
+                             style="border-radius: 10px">
+                            <button class="btn btn-default"
+                                    onclick={% if mode != "task" %}"window.location.href='/scan/fofalist/'"
+                                    {% else %}
+                                        "clear_filter()"
+                                    {% endif %}
+                            >
+                            清空过滤
                             </button>
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false"><b class="caret"></b>
@@ -49,7 +70,8 @@
                             <div class="dropdown-menu dropdown-menu-right "
                                  style="height: 225px;width: 300px">
                                 <div class="col-md-12" style="; border-radius: 10px">
-                                    <form action="{% if mode != 'fofa' %}/scan/tasklist/{% else %}/scan/fofalist/{% endif %}" method="get">
+                                    <form action="{% if mode != 'fofa' %}/scan/tasklist/{% else %}/scan/fofalist/{% endif %}"
+                                          method="get">
                                         <div class="row"
                                              style="background-color: #c9302c; border-radius: 10px 10px 0 0; height: 40px; text-align: center">
                                             <div style="margin-top: 10px"><strong style="color: white">过滤条件</strong>
@@ -57,61 +79,112 @@
                                         </div>
                                         <div class="text-center">
                                             <div class="row form-inline">
-                                                <label for="ip">{% if mode != 'fofa' %}IP:{% else %}语句:{% endif %}</label>
+                                                <label for="ip">{% if mode != 'fofa' %}IP:{% else %}
+                                                    语句:{% endif %}</label>
                                                 <input class="form-control" type="text" id="ip" name="ip"/>
                                             </div>
                                             <div class="row form-inline">
                                                 <label>服务扫描进度:</label>
-                                                <input class="" type="checkbox" id="true" name="service"
+                                                <input class="" type="radio" id="true" name="service"
                                                        value="1"/><span>已完成</span>
-                                                <input class="" type="checkbox" id="false" name="service"
-                                                       value="0"/><span>未完成</span>
+                                                <input class="" type="radio" id="false" name="service"
+                                                       value="-1"/><span>未完成</span>
                                             </div>
                                             <div class="row form-inline">
                                                 <label>漏洞扫描进度:</label>
-                                                <input class="" type="checkbox" id="true" name="vuln"
+                                                <input class="" type="radio" id="true" name="vuln"
                                                        value="1"/><span>已完成</span>
-                                                <input class="" type="checkbox" id="false" name="vuln"
-                                                       value="0"/><span>未完成</span>
+                                                <input class="" type="radio" id="false" name="vuln"
+                                                       value="-1"/><span>未完成</span>
                                             </div>
                                             <div class="row">
-                                                <button type="submit" class="btn btn-default">提交</button>
+                                                <button {% if mode != "task" %}type="submit" {% else %} type="button"
+                                                        onclick="filter()" {% endif %}class="btn btn-default">提交
+                                                </button>
                                             </div>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 col-md-pull-1">
-                            <button type="button" class="btn btn-danger" onclick="$('#editModal').modal('show')">
-                                新建任务
-                            </button>
-                        </div>
+                        {% if mode != "task" %}
+                            <div class="col-md-4 col-md-pull-1">
+                                <button type="button" class="btn btn-danger" onclick="$('#editModal').modal('show')">
+                                    新建任务
+                                </button>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             <div class="panel-body">
-                <div class="container col-md-12">
+                <div class="col-md-12">
+                    {% if mode == "task" %}
+                        <div class="col-md-12 group">
+                            <div class="col-md-4">
+                                <div class="col-md-6 col-md-pull-1">
+                                    <label class="text-right">切换分组</label>
+                                </div>
+                                <div class="col-md-6 col-md-pull-1">
+                                    <select class="selectpicker col-md-pull-4 group" id="group" data-width="150px">
+                                        {#                                        <option></option>#}
+                                        {% for i in groups %}
+                                            <option value="{{ i.id }}">{{ i.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ">
+                                <div class="col-md-7 add-group add-group unactive">
+                                    <div class="input-group col-md-12">
+                                        <input class="form-control" type="text" id="group-name"/>
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-default" onclick="add_group()"><b>+</b></button>
+                                </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 pull-right col-md-pull-1 option-group" onclick="refresh()">
+                                    <div class="col-md-12 col-md-push-4">
+                                        <a href="javascript:void(0)" style="color: #3c763d" class="config-group">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                            <span>配置</span>
+                                        </a>
+                                        <a href="javascript:void(0)" style="color: cadetblue" class="refresh">
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                            <span>刷新</span>
+                                        </a>
+                                        <a href="javascript:void(0)" style="color: darkred" class="delete-group">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                            <span>删除</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="func col-md-2 pull-right" style="">
+                                <div class="col-md-6 col-md-pull-4">
+                                    <button type="button" class="btn btn-primary"
+                                            onclick="add()">
+                                        新建分组
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="button" class="btn btn-danger"
+                                            onclick="$('#editModal').modal('show')">
+                                        新建任务
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <h5 class="page-header" style=""></h5>
+                    {% endif %}
                     <div class="col-md-12" style="margin: 10px">
                         {% block tablebody %}
                             <table class="table table-hover ">
                                 <p>original</p>
                             </table>
                         {% endblock %}
-                        <div class="text-center foot-block">
-                            <ul class="pagination">
-                                <li><a href="{{ page_url }}{{ page | add:notfirst }}">&laquo;</a></li>
-                                {% for i in pages %}
-                                    {% if i != '...' %}
-                                        <li class="{% if i == page %}active{% endif %}"><a
-                                                href="{{ page_url }}{{ i }}">{{ i }}</a></li>
-                                    {% else %}
-                                        <li><span>...</span></li>
-                                    {% endif %}
-                                {% endfor %}
-                                <li><a href="{{ page_url }}{{ page | add:notlast }}">&raquo;</a></li>
-                            </ul>
-                        </div>
+                        {% block footblock %}
+                        {% endblock %}
                     </div>
                 </div>
             </div>
@@ -259,6 +332,8 @@
         </div>
     {% endblock %}
     <script>
+
+
         $(".port").click(function () {
             if ($(this).attr("id") <= 2) {
                 var status = "none"
@@ -268,7 +343,7 @@
             $(".port2").css("display", status)
         })
 
-        function confirm(fun, id) {
+        function confirm(fun, id, query = "{{ query }}") {
             if ($("#myConfirm").length > 0) {
                 $("#myConfirm").remove();
             }
@@ -280,7 +355,7 @@
                 + "提示<button type='button' class='close' data-dismiss='modal'>"
                 + "<span style='font-size:18px; margin-top: 3px' class='glyphicon glyphicon-remove'></span></button></div>"
                 + "<div class='modal-body text-center' id='myConfirmContent' style='font-size:18px; '>"
-                + "是否确认删除该{{ query }}？"
+                + "是否确认删除该" + query + "？"
                 + "</div>"
                 + "<div class='modal-footer ' style=''>"
                 + "<button class='btn btn-primary ' id='confirmOk' >确定<tton>"
@@ -296,12 +371,15 @@
             });
         }
 
+
         function del(id) {
             $.get("/scan/delete/", {"id": id}, function (data) {
                 if (data === "success") {
-                    $(".message").text("删除任务成功")
-                    $(".right-message").css("display", "")
-                    setTimeout("location.reload()", 1000)
+                    {% if mode == 'task' %}
+                        refresh()
+                    {% else %}
+                        location.reload()
+                    {% endif %}
                 }
             }).fail(function () {
                 $(".message").text("删除任务失败")
@@ -310,12 +388,42 @@
             })
         }
 
+        $(".delete-group").click(function () {
+            confirm(delete_group, group, "分组")
+        })
+
+        $(".config-group").click(function () {
+            $.get("/json/group/", {
+                "gid": group
+            }, function (data) {
+                data = $.parseJSON(data)
+                $(".config#id").val(data[0])
+                $(".config#name").val(data[1])
+                $(".config#webvpn").val(data[2])
+                $(".config#cookies").val(data[3])
+                $("#configModel").modal("show")
+            })
+        })
+
+        function delete_group(gid) {
+            $.get("/scan/delete/group/", {
+                "gid": gid
+            }, function (data) {
+                group = 1
+                ip = ""
+                scan_process = ""
+                vuln_process = ""
+                refresh()
+            })
+        }
+
+
         function create_task() {
-            {% if mode == 'service' %}
+            {% if mode == 'task' %}
                 if ($("#mode").val() === "service") {
-                    window.location.href = ("/scan/" + $("#mode").val() + "/?new_ip=" + $("#ips").val() + "&port=" + $("#port").val() + "&desc=" + $("#desc").val() + "&port2=" + $("#port2").val())
+                    window.location.href = ("/scan/" + $("#mode").val() + "/?group=" + group + "&new_ip=" + $("#ips").val() + "&port=" + $("#port").val() + "&desc=" + $("#desc").val() + "&port2=" + $("#port2").val())
                 } else if ($("#mode").val() === "vuln") {
-                    window.location.href = ("/scan/" + $("#mode").val() + "/?new_ip=" + $("#ips").val() + "&type=" + $("#type").val() + "&desc=" + $("#desc").val())
+                    window.location.href = ("/scan/" + $("#mode").val() + "/?group={{ task.group }}&new_ip=" + $("#ips").val() + "&type=" + $("#type").val() + "&desc=" + $("#desc").val())
                 }
             {% elif mode == "fofa" %}
                 window.location.href = ("/scan/fofa" + "/?new_query=" + encodeURIComponent($("#ips").val()) + "&desc=" + $("#desc").val())
@@ -327,6 +435,11 @@
         function show_option() {
             $()
         }
+
+        $("select.group").bind("change", function () {
+            group = ($(this).val())
+            refresh()
+        })
 
         $(".mode").click(function () {
             $("." + $(this).val()).css("display", "")

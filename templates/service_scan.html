@@ -71,6 +71,113 @@
         .unactive {
             display: none;
         }
+
+        .btn-switch {
+            cursor: pointer;
+            position: relative;
+            border: 1px solid #dfdfdf;
+            background-color: #fdfdfd;
+            box-shadow: #dfdfdf 0 0 0 0 inset;
+            background-clip: content-box;
+            display: inline-block;
+            -webkit-appearance: none;
+            user-select: none;
+            outline: none !important;
+            width: 70px;
+            height: 20px;
+            border-radius: 30px;
+        }
+
+        .btn-switch.large:before {
+            content: '';
+            width: 28px;
+            height: 18px;
+            border-radius: 30px;
+        }
+
+        .btn-switch.large:after {
+            content: '关闭';
+            color: #999;
+            left: 30px;
+            position: absolute;
+            line-height: 19px;
+            font-size: 14px;
+        }
+
+        .btn-switch.large:checked:after {
+            content: '开启';
+            color: #fff;
+            left: 10px;
+            position: absolute;
+            line-height: 19px;
+            font-size: 14px;
+        }
+
+        .btn-switch.large:checked:before {
+            left: 40px;
+        }
+
+        .btn-switch:before {
+            content: '';
+            width: 29px;
+            height: 19px;
+            position: absolute;
+            top: 0px;
+            left: 0;
+            border-radius: 20px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-switch:checked {
+            border-color: #64bd63;
+            box-shadow: #64bd63 0 0 0 16px inset;
+            background-color: #64bd63;
+        }
+
+        .btn-switch:checked:before {
+            left: 21px;
+        }
+
+        .btn-switch.btn-switch-animbg {
+            transition: background-color ease 0.4s;
+        }
+
+        .btn-switch.btn-switch-animbg:before {
+            transition: left 0.3s;
+        }
+
+        .btn-switch.btn-switch-animbg:checked {
+            box-shadow: #dfdfdf 0 0 0 0 inset;
+            background-color: #64bd63;
+            transition: border-color 0.4s, background-color ease 0.4s;
+        }
+
+        .btn-switch.btn-switch-animbg:checked:before {
+            transition: left 0.3s;
+        }
+
+        .btn-switch.btn-switch-anim {
+            transition: border cubic-bezier(0, 0, 0, 1) 0.4s, box-shadow cubic-bezier(0, 0, 0, 1) 0.4s;
+        }
+
+        .btn-switch.btn-switch-anim:before {
+            transition: left 0.3s;
+        }
+
+        .btn-switch.btn-switch-anim:checked {
+            box-shadow: #64bd63 0 0 0 16px inset;
+            background-color: #64bd63;
+            transition: border ease 0.4s, box-shadow ease 0.4s, background-color ease 1.2s;
+        }
+
+        .btn-switch.btn-switch-anim:checked:before {
+            transition: left 0.3s;
+        }
+
+        input[type=checkbox]:checked::before {
+            font: normal normal normal 14px/2 FontAwesome;
+        }
     </style>
     <div class="container col-md-10 col-md-offset-1">
         <div class="panel panel-default text-center">
@@ -100,9 +207,28 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-2 col-md-offset-1"><strong>扫描ip范围</strong></div>
-                        <div class="col-md-7 input-group">
+                    <div class="row" style="background-color: ">
+                        <div class="col-md-3">
+                            <div class="col-md-6">
+                                <label class="text-right">切换分组</label>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="selectpicker col-md-pull-4 cmd" id="group" data-width="150px">
+                                    {% for i in groups %}
+                                        <option value="{{ i.id }}">{{ i.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1"><label>ip范围</label></div>
+
+                        <div class="col-md-2 pull-right">
+                            <label class="col-md-8 col-md-pull-1" style="margin-top: 8px">高级功能</label>
+                            <label class="col-md-4 col-md-pull-3"><input class="btn-switch large " type="checkbox"
+                                                                         value=""></label>
+                        </div>
+
+                        <div class="col-md-6 input-group">
                             <input class="form-control m-auto" name="ip" id="ip" value="{{ new_ip }}"/>
                             <input class="form-control m-auto" type="hidden" name="port" id="port"
                                    value="{{ port }}">
@@ -131,8 +257,30 @@ word-wrap: break-word;">常用端口 （{{ ports.0 }}）</a></li>
                                 </button>
                             </div>
                         </div>
-
                     </div>
+                    <div class="row senior unactive">
+                        <div class="col-md-6">
+                            <div class="col-md-3">
+                                <label>WEBVPN</label>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="col-md-12 col-md-pull-2">
+                                    <input class="form-control" id="webvpn" value="{{ group.webvpn }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-md-pull-1">
+                            <div class="col-md-3">
+                                <label>COOKIES</label>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="col-md-12 col-md-pull-2">
+                                    <input class="form-control" id="cookies" value="{{ group.cookies }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
                     <h5 class="page-header" style="margin: 5px; border-width: 2px"></h5>
                     <div class="table table-hover" style="display:
                             {% if not task.id %}none{% endif %}">
@@ -147,7 +295,7 @@ word-wrap: break-word;">常用端口 （{{ ports.0 }}）</a></li>
                                     清空备注
                                 </button>
                                 <button class="btn btn-primary btn-sm"
-                                        onclick="window.location.href='/scan/vuln/?id={{ task.id }}'">
+                                        onclick="start_vuln()">
                                     {% if not task.isStart %}扫描漏洞{% else %}查看漏洞{% endif %}</button>
                                 <button class="btn btn-success btn-sm"
                                         onclick="window.location.href='/scan/export/?mode=service&id={{ task.id }}'">
@@ -335,7 +483,7 @@ glyphicon-eye-open
                             $(".extend").html("<button class=\"btn btn-warning btn-sm\"" +
                                 "                                onclick=\"clear_note(" + task_id + "}})\">清空备注</button>" +
                                 "                                <button class=\"btn btn-primary btn-sm\"" +
-                                "                                        onclick=\"window.location.href='/scan/vuln/?id=" + task_id + "'\">扫描漏洞</button>" +
+                                "                                        onclick=\"start_vuln()\">扫描漏洞</button>" +
                                 "                                <button class=\"btn btn-success btn-sm\"\n" +
                                 "                                        onclick=\"window.location.href='/scan/export/?mode=service&id=" + task_id + "'\">\n" +
                                 "                                    导出表格\n" +
@@ -347,12 +495,26 @@ glyphicon-eye-open
                         } else {
                             setTimeout("refresh_table()", 5000)
                         }
-                    })
+                    },).error(function () {
+                    setTimeout("refresh_table()", 5000)
+                })
+            }
+
+            function start_vuln() {
+                $.get("/scan/stop/", {
+                    "id": "{{ task.id }}",
+                    "pause": 1
+                }, function () {
+                    window.location.href = '/scan/vuln/?id=' + task_id
+                })
             }
         </script>
     {% endblock %}
     {% block scriptbody %}
         <script>
+
+            group = "{{ gid }}"
+
             $(".ip-list").click(function () {
                 $(".port-range").html($(this).text().split(" ")[0] + "<span style=\"margin-left: 3px\"><b class=\"caret\"></b></span>")
                 $("#port").val($(this).attr("id"))
@@ -376,12 +538,16 @@ glyphicon-eye-open
                     } else {
                         var port2 = -1
                     }
-                    $.get("/scan/start/", {
+                    $.post("/scan/start/", {
+                        "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
                         "ips": $("#ip").val(),
                         "port": $("#port").val(),
                         "port2": port2,
                         "mode": "{{ mode }}",
-                        "description": "{{ description }}"
+                        "description": "{{ description }}",
+                        "group": group,
+                        "webvpn": $("#webvpn").val(),
+                        "cookies": $("#cookies").val()
                     })
                     $(".extend-btn").attr("href", "/scan/vuln/?id=" + task_id)
                     $(".foot-block").html("")
@@ -390,6 +556,17 @@ glyphicon-eye-open
                 })
                 setTimeout("refresh_table()", 1000)
             }
+
+            $(".selectpicker").change(function () {
+                group = $(".selectpicker").val()
+                $.get("/json/group/", data = {
+                    "gid": group
+                }, function (data) {
+                    data = $.parseJSON(data)
+                    $("#webvpn").val(data[2])
+                    $("#cookies").val(data[3])
+                })
+            })
 
             $(".refresh").hover(
                 function () {
@@ -400,7 +577,14 @@ glyphicon-eye-open
                 }
             )
 
+            $(".btn-switch").click(function () {
+                $(".senior").toggleClass("unactive")
+            })
+
             $(function () {
+                $(".selectpicker").selectpicker({})
+                $('.selectpicker').selectpicker('render');
+                $(".selectpicker").val(group)
                 task_id =
                     {{ task.id }}
                     $("[data-toggle='popover']").on('show.bs.popover', function () {
@@ -409,17 +593,16 @@ glyphicon-eye-open
                 isPause = {% if isPause %}true{% else %}false{% endif %}
                 result_count =
                     {{ count }}
-                    {% if process != 100 %}
-                        animate_ico(isPause)
-                        {% if not isPause %}
-                            refresh_table()
-                        {% else %}
-                            scan_over()
-                        {% endif %}
-                    {% else %}
+                    {% if new_ip %}
+                        test()
                     {% endif %}
-                {% if new_ip %}
-                    test()
+                {% if process != 100 %}
+                    animate_ico(isPause)
+                    {% if not isPause %}
+                        refresh_table()
+                    {% else %}
+                        scan_over()
+                    {% endif %}
                 {% endif %}
             })
 

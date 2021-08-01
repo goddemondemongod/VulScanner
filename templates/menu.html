@@ -5,9 +5,19 @@
     <meta charset="UTF-8">
     <title>VulScanner</title>
     <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap-select.css">
     <link rel="stylesheet" href="/static/css/style.css">
     <script src="/static/js/jquery.js"></script>
     <script src="/static/plugins/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/plugins/bootstrap/js/bootstrap-select-min.js"></script>
+    <script src="/static/plugins/bootstrap/js/defaults-zh_CN.min.js"></script>
+    <style>
+        label {
+            margin-top: 5px;
+        }
+
+
+    </style>
 </head>
 <body>
 <div id="col-md-12">
@@ -69,6 +79,14 @@
                     <div class="panel-body subject">
                         <span class="glyphicon glyphicon-record"></span>
                         <a href="/scan/ip/"><strong>IP段采集</strong></a>
+                    </div>
+                    <div class="panel-body subject">
+                        <span class="glyphicon glyphicon-record"></span>
+                        <a href="/tool/cmd/"><strong>辅助命令生成</strong></a>
+                    </div>
+                    <div class="panel-body subject">
+                        <span class="glyphicon glyphicon-record"></span>
+                        <a href="/tool/pwdlist/"><strong>默认密码查询</strong></a>
                     </div>
                 </div>
             </div>

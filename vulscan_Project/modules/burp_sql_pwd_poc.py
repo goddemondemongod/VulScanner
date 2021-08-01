@@ -9,14 +9,16 @@ import threading
 
 from aiomysql import connect
 
+from ServiceScanModel.models import ServiceScan
 from .. import fileUtil
 
 modules = {
     3306: "mysql",
-    1433: "mssql",
+    # 1433: "mssql",
     6379: "redis",
     5432: "postgresql",
 }
+
 
 class Sql_Config():
     mysql_config = {  # for mysql and postgresql
@@ -109,52 +111,55 @@ class SqlBurp(threading.Thread):
                 self.result = False
         self.loop.close()
 
-
     def get_result(self):
         return self.result
 
 
-def sql_pwd_burp(ip, port):
-    if port in modules:
-        module = modules[port]
-    else:
+class POC:
+    def __init__(self, service: ServiceScan):
+        self.service = service
+
+    def sql_pwd_burp(self, ip, port):
+        if port in modules:
+            module = modules[port]
+        else:
+            return []
+        with fileUtil.open_file(f"dict_{module}/dic_username_{module}.txt", "r") as user_file:
+            with fileUtil.open_file(f"dict_{module}/dic_password_{module}.txt", "r") as pwd_file:
+                username = [i.strip() for i in user_file.read().split("\n")]
+                password = [i.strip() for i in pwd_file.read().split("\n")]
+        burp_list = []
+        for u in username:
+            for p in password:
+                burp = SqlBurp(ip, port, module, u, p)
+                burp_list.append(burp)
+                if len(burp_list) % 10 == 0:
+                    for b in burp_list:
+                        b.start()
+                    for b in burp_list:
+                        b.join()
+                    for b in burp_list:
+                        if b.get_result() == True:
+                            return ["%s弱密码" % module, "用户名：%s<br>密码：%s" % (
+                            b.config["user"] if "user" in b.config else "", b.config["password"])]
+                    burp_list = []
+        for b in burp_list:
+            b.start()
+        for b in burp_list:
+            b.join()
+        for b in burp_list:
+            if b.get_result() == True:
+                return ["%s弱密码" % module,
+                        "用户名：%s<br>密码：%s" % (b.config["user"] if "user" in b.config else "", b.config["password"])]
         return []
-    with fileUtil.open_file(f"dict_{module}/dic_username_{module}.txt", "r") as user_file:
-        with fileUtil.open_file(f"dict_{module}/dic_password_{module}.txt", "r") as pwd_file:
-            username = [i.strip() for i in user_file.read().split("\n")]
-            password = [i.strip() for i in pwd_file.read().split("\n")]
-    burp_list = []
-    for u in username:
-        for p in password:
-            burp = SqlBurp(ip, port, module, u, p)
-            burp_list.append(burp)
-            if len(burp_list) % 10 == 0:
-                for b in burp_list:
-                    b.start()
-                for b in burp_list:
-                    b.join()
-                for b in burp_list:
-                    if b.get_result() == True:
-                        return ["%s弱密码" % module, "用户名：%s<br>密码：%s" % (b.config["user"] if "user" in b.config else "", b.config["password"])]
-                burp_list = []
-    for b in burp_list:
-        b.start()
-    for b in burp_list:
-        b.join()
-    for b in burp_list:
-        if b.get_result() == True:
-            return ["%s弱密码" % module, "用户名：%s<br>密码：%s" % (b.config["user"] if "user" in b.config else "", b.config["password"])]
-    return []
 
+    def fingerprint(self):
+        if self.service.port in modules:
+            return True
 
-def fingerprint(service):
-    if service.port in modules:
-        return True
-
-
-def poc(service):  # 传递vuln_scan的任务，字典键(ip,port)，为方便批量执行，每个poc文件的主函数都为poc(ip, port, url)
-    try:
-        result = sql_pwd_burp(service.ip, service.port)
-    except Exception as e:
-        result = []
-    return result
+    def poc(self):  # 传递vuln_scan的任务，字典键(ip,port)，为方便批量执行，每个poc文件的主函数都为poc(ip, port, url)
+        try:
+            result = self.sql_pwd_burp(self.service.ip, self.service.port)
+        except Exception as e:
+            result = []
+        return result
