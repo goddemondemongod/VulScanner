@@ -22,7 +22,6 @@ conf.read((os.path.dirname(os.path.abspath("settings.py"))) + "\config.ini")
 FOFA_EMAIL = conf.get("setting", "FOFA_EMAIL")
 FOFA_KEY = conf.get("setting", "FOFA_KEY")
 
-
 port_label = {
     1433: "mssql-1433",
     3306: "mysql-3306",

@@ -37,7 +37,6 @@ poc_type_list = pocModelUtil.poc_type_list
 conf = configparser.ConfigParser()
 conf.read((os.path.dirname(os.path.abspath("settings.py"))) + "\config.ini")
 
-
 def _auth():  # args 是传入的，需要验证的权限
     def __auth(func):
         def _login(request, *args):
