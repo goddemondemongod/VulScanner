@@ -6,6 +6,30 @@
 
 
 
+******
+
+**更新内容**
+
+1. 增加任务分组功能，管理任务更加方便：
+
+   ![image-20210801125133966](images/image-20210801125133966.png)
+
+2. 增加后渗透常用命令生成功能：
+
+   ![image-20210801125312914](images/image-20210801125312914.png)
+
+3. 增加常用设备弱密码查询功能，异步查询，即输即得：
+
+   ![image-20210801125544972](images/image-20210801125544972.png)
+
+4. 增加网瑞达webvpn的内网web服务探测功能，仅需配置webvpn地址和cookies即可扫描：
+
+   ![image-20210801125744069](images/image-20210801125744069.png)
+
+*****
+
+
+
 #### 0x00 主要模块
 
 * 任务列表（扫描/FOFA采集/IP段采集）
@@ -99,7 +123,6 @@
 poc和exp脚本初始化为模板文件，并对requests和文件操作函数进行封装，可根据具体验证方法修改文件，大致逻辑如下：
 
 ```
-
 poc.py:
 
     def fingerprint(service):   #进行漏洞检测前首先进行指纹识别，如满足指纹则继续验证
@@ -146,19 +169,19 @@ exp.py:
 
 1. 数据库弱密码：
 
-	*  包含mysql、mssql、redis、postgresql数据库弱密码检测功能
+   *  包含mysql、mssql、redis、postgresql数据库弱密码检测功能
 
-	*  示例：
+   *  示例：
 
 ![88185122f31e38029039d19e601961e4.png](images/Image%20[10].png)
 
 2. tomcat弱密码：
 
-	*  采用metasploit内置tomcat弱密码字典，注意tomcat自带密码保护机制，大量爆破可能导致manager用户被禁用
+   *  采用metasploit内置tomcat弱密码字典，注意tomcat自带密码保护机制，大量爆破可能导致manager用户被禁用
 
-	*  爆破成功后可执行exp，自动部署webshell目录下zs.war包并可执行命令
+   *  爆破成功后可执行exp，自动部署webshell目录下zs.war包并可执行命令
 
-	*  示例：
+   *  示例：
 
 ![48f9fc41ec72fdb00aaa3b5f9c963364.png](images/Image%20[11].png)
 
@@ -166,31 +189,32 @@ exp.py:
 
 3. axis2弱密码：
 
-	*  自动探测axis2目录，如存在axis2-admin目录则尝试以admin/axis2登录
+   *  自动探测axis2目录，如存在axis2-admin目录则尝试以admin/axis2登录
 
-	*  登陆成功后可执行exp，自动部署webshell下aar包并可执行命令
+   *  登陆成功后可执行exp，自动部署webshell下aar包并可执行命令
 
-	*  示例：
+   *  示例：
 
 ![29abc44ce69f11e8aa160b671cb6f0ce.png](images/Image%20[13].png)
 
 4. weblogic控制台弱密码：
 
-	*  自动探测是否开放console路径，并尝试爆破，爆破成功则返回用户名/密码
+   *  自动探测是否开放console路径，并尝试爆破，爆破成功则返回用户名/密码
 
-	*  示例：
+   *  示例：
 
 ![4ecc44fc8d75bab7cfb04982eb31251c.png](images/Image%20[14].png)
 
 5. Zyxel 硬编码后门账户：
 
-	*  尝试以zyfwp/PrOw!aN_fXp登录ftp端口，如登陆成功则返回漏洞结果
+   *  尝试以zyfwp/PrOw!aN_fXp登录ftp端口，如登陆成功则返回漏洞结果
 
-	*  示例：
+   *  示例：
 
 ![85023ffef572c31f3a39962edd14b111.png](images/Image%20[15].png)
 
 6. ~~daloradius弱密码（0day）~~：
+
 *  ~~尝试以默认密码登录~~
 
 *  ~~登陆成功可执行exp，可上传文件至网站根目录~~
@@ -199,19 +223,19 @@ exp.py:
 
 7. 部分安全设备密码泄露：
 
-	*  对中科网威等安全设备前端泄露密码进行探测并返回结果
+   *  对中科网威等安全设备前端泄露密码进行探测并返回结果
 
-	*  示例：
+   *  示例：
 
 ![c9f8ebe83350da400fd5573771790f93.png](images/Image%20[18].png)
 
 8. ssh弱密码：
 
-	*  对22端口进行爆破登录
+   *  对22端口进行爆破登录
 
-	*  如爆破成功则可使用命令执行exp：
+   *  如爆破成功则可使用命令执行exp：
 
-	*  示例：
+   *  示例：
 
 ![1ab1c4f4042ee0bfec21744ffcdb92f9.png](images/Image%20[19].png)
 
@@ -225,19 +249,19 @@ exp.py:
 
 1. shiro反序列化：
 
-	*  对常见key进行探测，支持cbc/gcm加密方式，采用SimplePrincipalCollection的payload，可不出网测试
+   *  对常见key进行探测，支持cbc/gcm加密方式，采用SimplePrincipalCollection的payload，可不出网测试
 
-	*  示例：
+   *  示例：
 
 ![1550a8eadbc70e8c206876cd7a4339ab.png](images/Image%20[21].png)
 
 2. 浪潮管理系统V4.0 RCE：
 
-	*  支持未授权登录/登录接口RCE/SysShel接口RC![a381bdf718c15f07febc2617659047b8.png](images/Image%20[22].png)E漏洞检测
+   *  支持未授权登录/登录接口RCE/SysShel接口RC![a381bdf718c15f07febc2617659047b8.png](images/Image%20[22].png)E漏洞检测
 
-	*  如存在SysShell接口RCE漏洞，可使用命令执行exp：
+   *  如存在SysShell接口RCE漏洞，可使用命令执行exp：
 
-	*  示例：
+   *  示例：
 
 ![c3c756d98d59c29883e81742df2f3041.png](images/Image%20[23].png)
 
@@ -245,11 +269,11 @@ exp.py:
 
 3. 用友OA BshServlet接口泄露：
 
-	*  探测是否开放BshServlet接口
+   *  探测是否开放BshServlet接口
 
-	*  如存在漏洞，则可使用命令执行exp
+   *  如存在漏洞，则可使用命令执行exp
 
-	*  示例：
+   *  示例：
 
 ![a381bdf718c15f07febc2617659047b8.png](images/Image%20[25].png)
 
@@ -257,19 +281,19 @@ exp.py:
 
 4. docker未授权漏洞：
 
-	*  探测是否可访问info路径
+   *  探测是否可访问info路径
 
-	*  示例：
+   *  示例：
 
 ![2afcb811894069a33937d674ad31f8bd.png](images/Image%20[27].png)
 
 5. Thinkphp debug命令执行：
 
-	*  测试是否可调用debug模块执行代码
+   *  测试是否可调用debug模块执行代码
 
-	*  如存在漏洞，则可使用命令执行exp
+   *  如存在漏洞，则可使用命令执行exp
 
-	*  示例：
+   *  示例：
 
 ![73004ed4171055253783c825f3d7eb16.png](images/Image%20[28].png)
 
@@ -277,11 +301,11 @@ exp.py:
 
 6. Thinkphp5命令执行：
 
-	*  测试是否可调用index/think/app/invokefunction模块执行代码
+   *  测试是否可调用index/think/app/invokefunction模块执行代码
 
-	*  如存在漏洞，则可使用命令执行exp
+   *  如存在漏洞，则可使用命令执行exp
 
-	*  示例：
+   *  示例：
 
 ![ee319bf8228c0ea4aab7042ab6e8e11a.png](images/Image%20[30].png)
 
@@ -289,11 +313,11 @@ exp.py:
 
 7. weblogic_XML反序列化：
 
-	*  上传文件测试是否存在XML反序列化漏洞
+   *  上传文件测试是否存在XML反序列化漏洞
 
-	*  如存在漏洞，则可使用文件上传exp
+   *  如存在漏洞，则可使用文件上传exp
 
-	*  示例：
+   *  示例：
 
 ![7b652d42eb928c18caa75629cd373fa0.png](images/Image%20[32].png)
 
@@ -301,11 +325,11 @@ exp.py:
 
 8. weblogic_wls9-async反序列化：
 
-	*  利用@lufei大佬的poc测试，如有命令回显则存在漏洞
+   *  利用@lufei大佬的poc测试，如有命令回显则存在漏洞
 
-	*  如存在漏洞，则可使用命令执行exp
+   *  如存在漏洞，则可使用命令执行exp
 
-	*  示例：
+   *  示例：
 
 ![32d2f5f3756d0110f2e95ee66b89dfe8.png](images/Image%20[34].png)
 
@@ -313,15 +337,15 @@ exp.py:
 
 9. MS17_010：
 
-	*  不多说了
+   *  不多说了
 
 10. Apache Solr Velocity模板远程执行：
 
-	*  首先未授权获取目标全部core，再以此测试是否可修改params.resource.loader.enabled值，如可修改，则返回并保存，以供exp使用
+    *  首先未授权获取目标全部core，再以此测试是否可修改params.resource.loader.enabled值，如可修改，则返回并保存，以供exp使用
 
-	*  如存在漏洞，可使用命令执行exp
+    *  如存在漏洞，可使用命令执行exp
 
-	*  示例：
+    *  示例：
 
 ![493960765d43fac304594d98941904d9.png](images/Image%20[36].png)
 
@@ -329,17 +353,17 @@ exp.py:
 
 11. 泛微OA_XML反序列化：
 
-	*  采用URLDNS模块测试
+    *  采用URLDNS模块测试
 
-	*  目前大部分系统均已修复，且进一步利用条件较为困难，故不提供exp
+    *  目前大部分系统均已修复，且进一步利用条件较为困难，故不提供exp
 
 12. 奇安信 网康下一代防火墙RCE：
 
-	*  通过写入命令至文件方式利用，如写入成功，则存在漏洞
+    *  通过写入命令至文件方式利用，如写入成功，则存在漏洞
 
-	*  如存在漏洞，可使用命令执行exp
+    *  如存在漏洞，可使用命令执行exp
 
-	*  示例：
+    *  示例：
 
 ![7ad78e2f7f7c1dddc0de9afba33783ac.png](images/Image%20[38].png)
 
@@ -347,11 +371,11 @@ exp.py:
 
 13. H3C SecParh堡垒机远程命令执行：
 
-	*  首先通过未授权获取管理员权限，再代码注入执行命令
+    *  首先通过未授权获取管理员权限，再代码注入执行命令
 
-	*  如存在漏洞，则可使用命令执行exp
+    *  如存在漏洞，则可使用命令执行exp
 
-	*  示例：
+    *  示例：
 
 ![0164271b3d41ed56fb56c74284d6f247.png](images/Image%20[40].png)
 
@@ -363,15 +387,15 @@ exp.py:
 
 1. 泛微OA9.0 任意文件上传：
 
-	*  存在漏洞路径为/page/exportImport/uploadOperation.jsp
+   *  存在漏洞路径为/page/exportImport/uploadOperation.jsp
 
-	*  由于目前大部分系统已修复，故不提供exp
+   *  由于目前大部分系统已修复，故不提供exp
 
 2. ShowDoc 任意文件上传：
 
-	*  存在漏洞路径为/index.php?s=/home/page/uploadImg
+   *  存在漏洞路径为/index.php?s=/home/page/uploadImg
 
-	*  如存在漏洞，则可使用文件上传exp：
+   *  如存在漏洞，则可使用文件上传exp：
 
 ![1513ae889c587467636fc853c0f630fc.png](images/Image%20[42].png)
 
@@ -379,11 +403,11 @@ exp.py:
 
 3. 和信创天云桌面_RCE：
 
-	*  漏洞路径：/Upload/upload_file.php
+   *  漏洞路径：/Upload/upload_file.php
 
-	*  如存在漏洞，则可使用文件上传exp
+   *  如存在漏洞，则可使用文件上传exp
 
-	*  示例：
+   *  示例：
 
 ![e1896bd8325fc51d4c8d9d9920f1b8cc.png](images/Image%20[44].png)
 
@@ -395,17 +419,17 @@ exp.py:
 
 1. 360天擎 前台SQL注入：
 
-	*  漏洞路径：/api/dp/rptsvcsyncpoint?ccid=1，采用堆叠注入延时验证
+   *  漏洞路径：/api/dp/rptsvcsyncpoint?ccid=1，采用堆叠注入延时验证
 
-	*  示例：
+   *  示例：
 
 ![7f8609a73c278ffa4a3f2cb411a1d79a.png](images/Image%20[46].png)
 
 2. 泛微OA8.0 前台SQL注入：
 
-	*  漏洞路径：/js/hrm/getdata.jsp?cmd=getSelectAllId&sql={payload}
+   *  漏洞路径：/js/hrm/getdata.jsp?cmd=getSelectAllId&sql={payload}
 
-	*  示例：
+   *  示例：
 
 ![55ea67385be142ba634517e31e7c621c.png](images/Image%20[47].png)
 
@@ -415,9 +439,9 @@ exp.py:
 
 1. MinIO SSRF：
 
-	*  漏洞路径：/minio/webrpc，通过修改Host头可造成SSRF，结合docker未授权等可实现RCE
+   *  漏洞路径：/minio/webrpc，通过修改Host头可造成SSRF，结合docker未授权等可实现RCE
 
-	*  示例：
+   *  示例：
 
 ![bb8c5aae9b891cf62e714711ba25e317.png](images/Image%20[48].png)
 
@@ -427,31 +451,31 @@ exp.py:
 
 1. 蓝凌OA 任意文件读取：
 
-	*  漏洞路径：/sys/ui/extend/varkind/custom.jsp，如成功读取则对管理员密码解密
+   *  漏洞路径：/sys/ui/extend/varkind/custom.jsp，如成功读取则对管理员密码解密
 
-	*  如存在漏洞，则可使用文件读取exp
+   *  如存在漏洞，则可使用文件读取exp
 
-	*  示例：
+   *  示例：
 
 ![88d61fc688b2f7d58d0c604ad225f85c.png](images/Image%20[49].png)
 
 2. 致远OA_webmail.do任意文件下载：
 
-	*  漏洞路径：/seeyon/webmail.do?method=doDownloadAtt&filename=test.txt&filePath={payload}，测试读取datasourceCtp.properties文件
+   *  漏洞路径：/seeyon/webmail.do?method=doDownloadAtt&filename=test.txt&filePath={payload}，测试读取datasourceCtp.properties文件
 
-	*  如存在漏洞，则可使用文件读取exp
+   *  如存在漏洞，则可使用文件读取exp
 
-	*  示例：
+   *  示例：
 
 ![fba4d9098e69d5246dd6a06033eaae5c.png](images/Image%20[50].png)
 
 3. Apache Solr 任意文件读取：
 
-	*  漏洞路径：/solr/{core}/debug/dump?param=ContentStreams&stream.url=file:///{payload}，先通过未授权获取有效core，再尝试读取/etc/passwd进行验证
+   *  漏洞路径：/solr/{core}/debug/dump?param=ContentStreams&stream.url=file:///{payload}，先通过未授权获取有效core，再尝试读取/etc/passwd进行验证
 
-	*  如存在漏洞，则可使用文件读取exp
+   *  如存在漏洞，则可使用文件读取exp
 
-	*  示例：
+   *  示例：
 
 ![2c02b504804971f49e4b2a6d58034192.png](images/Image%20[51].png)
 
@@ -459,21 +483,21 @@ exp.py:
 
 4. 帆软报表V8.0 任意文件读取
 
-	*  漏洞路径：/WebReport/ReportServer?op=chart&cmd=get_geo_json&resourcepath={payload}，尝试读取privilege.xml，如读取成功，自动解密并返回管理员用户名和密码
+   *  漏洞路径：/WebReport/ReportServer?op=chart&cmd=get_geo_json&resourcepath={payload}，尝试读取privilege.xml，如读取成功，自动解密并返回管理员用户名和密码
 
-	*  如存在漏洞，则可使用文件读取exp
+   *  如存在漏洞，则可使用文件读取exp
 
-	*  示例：
+   *  示例：
 
 ![cf111c6ef76393708e14af9ce27b61ad.png](images/Image%20[53].png)
 
 5. Apache Flink 任意文件读取：
 
-	*  漏洞路径：/jobmanager/logs/..%252f......%252f/{payload}，尝试读取etc/passwd，如成功读取则返回漏洞结果
+   *  漏洞路径：/jobmanager/logs/..%252f......%252f/{payload}，尝试读取etc/passwd，如成功读取则返回漏洞结果
 
-	*  如存在漏洞，则可使用文件读取exp
+   *  如存在漏洞，则可使用文件读取exp
 
-	*  示例：
+   *  示例：
 
 ![e77329ce277053ada985bd8c077f12ca.png](images/Image%20[54].png)
 
@@ -485,17 +509,17 @@ exp.py:
 
 1. weblogic_控制台未授权访问：
 
-	*  尝试访问/console/css/%252e%252e%252fconsole.portal，如可成功访问则返回漏洞结果
+   *  尝试访问/console/css/%252e%252e%252fconsole.portal，如可成功访问则返回漏洞结果
 
-	*  示例：
+   *  示例：
 
 ![2708b802d01c4a105b99b126cce340b2.png](images/Image%20[56].png)
 
 2. JumpServer 日志接口未授权：
 
-	*  漏洞路径：/ws/ops/tasks/log/，尝试进行websocket通信并获取操作日志，如可成功读取则返回首段日志
+   *  漏洞路径：/ws/ops/tasks/log/，尝试进行websocket通信并获取操作日志，如可成功读取则返回首段日志
 
-	*  示例：
+   *  示例：
 
 ![477c72f15154f6b4c8dfe7ae29a06483.png](images/Image%20[57].png)
 
@@ -529,11 +553,11 @@ exp.py:
 
 1. 扫描IP范围支持段方式与范围方式，如：
 
-    1）127.0.0.1/24
+   1）127.0.0.1/24
 
-    2）127.0.0.1-127.0.0.225
+   2）127.0.0.1-127.0.0.225
 
-    3）127.0.0.1/24;127.0.2.0/24
+   3）127.0.0.1/24;127.0.2.0/24
 
    等，多段地址间用“;”分割
 
@@ -730,14 +754,14 @@ exp.py:
 7. 访问<http://127.0.0.1:8000/>:
 
    ![image-20210720224214877](images/image-20210720224214877.png)
-   
+
    初始用户为admin/admin，登录后可进入”用户信息“模块修改密码：
-   
+
    ![image-20210720224449467](images/image-20210720224449467.png)
-   
+
    ![image-20210720224538008](images/image-20210720224538008.png)
-   
+
    修改config.ini中的isLogin为True则可免登录使用：
-   
+
    ![image-20210722002924263](images/image-20210722002924263.png)
 
