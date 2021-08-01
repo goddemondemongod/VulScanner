@@ -193,3 +193,5 @@ insert into pwdmodel_pwd(`system`, `username`, `password`) values ("IBM Storwize
 insert into pwdmodel_pwd(`system`, `username`, `password`) values ("IBM Storwize V3700数据存储服务器管理系统", "superuser", "passw0rd");
 insert into pwdmodel_pwd(`system`, `username`, `password`) values ("Harbor", "admin", "Harbor12345");
 insert into pwdmodel_pwd(`system`, `username`, `password`) values ("arcgis", "siteadmin", "siteadmin");
+INSERT INTO `scan`.`groupmodel_group`(`id`, `name`, `webvpn`, `cookies`) VALUES (1, '测试', '', '');
+INSERT INTO `scan`.`groupmodel_group`(`id`, `name`, `webvpn`, `cookies`) VALUES (2, 'IP采集', '', '');
