@@ -1,0 +1,40 @@
+{% extends "menu.html" %}
+{% block mainbody %}
+    <!DOCTYPE html>
+    <style>
+    .form-control{
+        font-size: medium;
+    }
+    label{
+        margin-top: 6px;
+    }
+
+    </style>
+    <div class="container col-md-push-4 col-md-4 text-center" style="margin-top: 80px">
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading text-center" style="background-color: #317796; color: white; font-size: medium">用户登录</div>
+            <!-- Table -->
+            <form class="table" action="/login/" method="post">
+                <div class="row">
+                    <label for="name" class="col-md-3" >用户名</label>
+                    {% csrf_token %}
+                    <div class="col-md-8 input">
+                        <input type="input" class="form-control" id="name" value="" name="name"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <label for="password" class="col-md-3">密码</label>
+                    <div class="col-md-8 input">
+                        <input type="password" class="form-control" id="passwrd" name="pwd"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="">
+                        <button type="submit" class="btn btn-default" id="passwrd" style="background-color: #7bafce; color: white">登录</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

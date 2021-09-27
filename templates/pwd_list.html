@@ -1,0 +1,124 @@
+{% extends "service_scan.html" %}
+{% block panelbody %}
+    <div class="panel-heading" style="font-size: medium">
+        <span class="col-md-offset-4"><span class="glyphicon glyphicon-search"></span> 默认密码查询</span>
+        <div class="pull-right col-md-4 col-md-push-1">
+            <div class="col-md-2 col-md-offset-3" style="">
+                <button type="button" class="btn btn-success"
+                        onclick='$("#editModal").modal("show")'>
+                    添加数据
+                </button>
+            </div>
+            <div class="col-md-2 col-md-offset-2">
+                <button type="button" class="btn btn-default"
+                        onclick="window.history.go(-1)">
+                    返回
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-2 col-md-offset-1"><label>系统名称</label></div>
+            <div class="col-md-7 input-group">
+                <input class="form-control m-auto" name="system" id="system"/>
+                <div class="input-group-btn drop-down" style="">
+
+                    <button type="button" class="btn btn-primary" onclick="search()"
+                            style="margin-left: 50px; border-radius: 5px;">
+                        查询
+                    </button>
+                </div>
+            </div>
+        </div>
+        <h5 class="page-header" style="margin: 5px; border-width: 2px"></h5>
+        <div class="col-md-12" style="; overflow-x: unset;overflow-y: auto; height:550px; margin-top: 10px">
+            <table class="table table-hover result-table">
+                <thead>
+                <tr class="success">
+                    <th class="col-md-1">序号</th>
+                    <th class="col-md-4">系统名称</th>
+                    <th class="col-md-3">用户名</th>
+                    <th class="col-md-3">密码</th>
+                    <th class="col-md-1">查看</th>
+                </tr>
+                </thead>
+                <tbody class="table-context" class="context">
+                {% for i in pwd_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.system }}</td>
+                        <td>
+                            {{ i.username }}
+                        </td>
+                        <td>
+                            {{ i.password }}
+                        </td>
+                        <td><a href="#"><span class="glyphicon glyphicon-eye-open"></span></a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" style="margin-top: 100px">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="font-size:18px;">
+                        <span style='font-size:18px; margin-top: 4px' class='glyphicon glyphicon-remove'></span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">添加数据</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                            <span class="help-block text-left"><strong>*一行一条数据，各字段间用,间隔开</strong></span>
+                        <form class="form-horizontal" id="editForm" action="/tool/add/pwd/" method="post">
+                            {% csrf_token %}
+                            <textarea class="form-control" id="pwd" name="pwd" rows="12" style="margin-bottom: 15px; resize: none"></textarea>
+                        </form>
+                    </div>
+
+                </div><!-- /.modal-content -->
+                <div class="modal-footer" style="border:none">
+                    <button type="submit" class="btn btn-primary" onclick='add()'>添加</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div><!-- /.modal -->
+        </div>
+    </div>
+{% endblock %}
+{% block scriptbody %}
+    <script>
+        function add() {
+            $.post("/tool/add/pwd/", {
+                "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
+                "pwd": $("textarea#pwd").val()
+            }, function (){
+                $("#editModal").modal("hide");
+                search();
+            })
+        }
+
+        function search() {
+            $.get("/json/refresh", {
+                "mode": "pwd",
+                "system": $("#system").val()
+            }, function (data) {
+                data = $.parseJSON(data)
+                $(".table-context").html(data["html"])
+            })
+        }
+
+        $("#system").keypress(function (event) {
+            if (event.which === 13) {
+                search()
+            }
+        })
+
+        $('#system').bind('input propertychange', function () {
+            search()
+        });
+    </script>
+{% endblock %}

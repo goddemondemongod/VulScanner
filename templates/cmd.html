@@ -1,0 +1,161 @@
+{% extends "service_scan.html" %}
+{% block panelbody %}
+    <style>
+        label {
+            margin-top: 5px;
+        }
+
+
+    </style>
+    <div class="panel-heading" style="font-size: medium">
+        <span class="col-md-offset-4"><span class="glyphicon glyphicon-wrench"></span> 辅助命令生成</span>
+        <div class="pull-right col-md-4 col-md-push-1">
+            <div class="col-md-2 col-md-offset-7">
+                <button type="button" class="btn btn-default"
+                        onclick="window.history.go(-1)">
+                    返回
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="col-md-12">
+            <div class="col-md-3">
+                <div class="col-md-5">
+                    <label class="text-right">命令类型</label>
+                </div>
+                <div class="col-md-5">
+                    <select class="selectpicker col-md-pull-4 cmd" id="ctype" data-width="150px">
+                        {% for i in cmd_type %}
+                            <option value="{{ forloop.counter0 }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 write">
+                <div class="col-md-5">
+                    <label>加密方式</label>
+                </div>
+                <div class="col-md-6 ">
+                    <select class="selectpicker col-md-pull-4" id="etype" data-width="150px">
+                        <option value="0">base64加密</option>
+                        <option value="1">不加密</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 write">
+                <div class="col-md-5">
+                    <label>写入格式</label>
+                </div>
+                <div class="col-md-6">
+                    <select class="selectpicker col-md-pull-4" id="wtype" data-width="150px">
+                        <option value="0">分段写入</option>
+                        <option value="1">整块写入</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3 pull-right">
+                <button class="btn btn-primary pull-right" id="btn">确定</button>
+            </div>
+        </div>
+        <h5 class="page-header" style="border-width: 2px"></h5>
+        {% csrf_token %}
+        <div class="col-md-6">
+            <div class="download write" style="">
+                <label class="pull-left">目标文件路径：</label>
+                <input class="form-control file" id="file" style="resize: none"/>
+            </div>
+            <div class="download" style="display: none">
+                <label class="pull-left">远程文件地址：</label>
+                <input class="form-control file" id="url" style="resize: none" placeholder="默认下载VPS文件"/>
+            </div>
+            <div class="write">
+                <label class="pull-left">文件内容：</label>
+                <textarea class="form-control file" id="content" style="resize: none" rows="10"></textarea>
+            </div>
+            <div class="shell" style="display: none">
+                <label class="pull-left">CobaltStrike木马地址：</label>
+                <input class="form-control file" id="cs" style="resize: none" placeholder="默认下载已配置地址"/>
+            </div>
+            <div class="shell" style="display: none">
+                <label class="pull-left">Metasploit木马地址：</label>
+                <input class="form-control file" id="msf" style="resize: none" placeholder="默认下载已配置地址"/>
+            </div>
+            <div class="iox" style="display: none">
+                <label class="pull-left">本地端口：</label>
+                <input class="form-control file" id="lport" style="resize: none" placeholder="3389"/>
+            </div>
+            <div class="iox" style="display: none">
+                <label class="pull-left">转发端口：</label>
+                <input class="form-control file" id="rport" style="resize: none" placeholder="12345"/>
+            </div>
+            <div class="iox" style="display: none">
+                <label class="pull-left">VPS端口：</label>
+                <input class="form-control file" id="vport" style="resize: none" placeholder="12345"/>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="pull-left">命令结果：</label>
+            <textarea class="form-control" id="result" style="resize: none" rows="16"></textarea>
+        </div>
+    </div>
+{% endblock %}
+{% block scriptbody %}
+    <script>
+        $(function () {
+            $('.selectpicker').selectpicker({});
+            $('.cmd').val(0)
+            $('.selectpicker').selectpicker('render');
+        })
+        $('.cmd').change(function () {
+            {#$("input").val("")#}
+            {#$("textarea").val("")#}
+            if ($(this).val() === "0") {
+                $("div.write").css("display", "")
+                $("div.download").siblings("div:not(.write)").css("display", "none")
+            } else {
+                $("div.write").css("display", "none")
+                if ($(this).val() === "1") {
+                    $("div.download").css("display", "")
+                    $("div.download").siblings("div:not(.download)").css("display", "none")
+                } else {
+                    $("div.download").siblings().css("display", "none")
+                    if ($(this).val() === "2") {
+                        $("div.shell").css("display", "")
+                        $("div.download").siblings("div:not(.shell)").css("display", "none")
+                    } else if ($(this).val() === "3") {
+                        $("div.iox").css("display", "")
+                        $("div.download").siblings("div:not(.iox)").css("display", "none")
+                    } else if ($("this").val() === "4") {
+
+                    }
+                }
+            }
+        })
+        $("#btn").click(function () {
+            $.post("/tool/cmd/", data = {
+                "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
+                "ctype": $("#ctype").val(),
+                "etype": $("#etype").val(),
+                "wtype": $("#wtype").val(),
+                "file": $("#file").val(),
+                "url": $("#url").val(),
+                "content": $("#content").val(),
+                "lport": $("#lport").val(),
+                "rport": $("#rport").val(),
+                "vport": $("#vport").val(),
+                "cs": $("#cs").val(),
+                "msf": $("#msf").val(),
+            }, function (data) {
+                $("#result").val(data)
+            })
+        })
+
+        $("input.file").keypress(function (event) {  /*绑定回车事件*/
+            if (event.which === 13) {
+                $("#btn").click()
+            }
+        })
+
+    </script>
+{% endblock %}
