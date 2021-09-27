@@ -48,7 +48,11 @@ def get_count(task_id, page=0, each_num=0):  # 获取结果集总数
 
 
 def get_results(task_id, isAll=False, page=1, each_num=100):  # 获取扫描结果，isAll=True获取所有结果，否则获取未显示结果
+<<<<<<< HEAD
     select_sql = "select vulnscanmodel_vulnscan.id, vulnscanmodel_vulnscan.ip, servicescanmodel_servicescan.port, vulnscanmodel_vulnscan.port, vulnscanmodel_vulnscan.url, vulnerability, risk, vulnscanmodel_vulnscan.description, servicescanmodel_servicescan.title, servicescanmodel_servicescan.server, servicescanmodel_servicescan.type from vulnscanmodel_vulnscan  INNER join servicescanmodel_servicescan  on (servicescanmodel_servicescan.ip = vulnscanmodel_vulnscan.ip and servicescanmodel_servicescan.taskid=vulnscanmodel_vulnscan.taskid) where {query}"
+=======
+    select_sql = "select vulnscanmodel_vulnscan.id, vulnscanmodel_vulnscan.ip, servicescanmodel_servicescan.port, vulnscanmodel_vulnscan.port, servicescanmodel_servicescan.url, vulnerability, risk, vulnscanmodel_vulnscan.description, servicescanmodel_servicescan.title, servicescanmodel_servicescan.server, servicescanmodel_servicescan.type from vulnscanmodel_vulnscan  INNER join servicescanmodel_servicescan  on (servicescanmodel_servicescan.ip = vulnscanmodel_vulnscan.ip and servicescanmodel_servicescan.taskid=vulnscanmodel_vulnscan.taskid) where {query}"
+>>>>>>> master
     update_sql = "update  vulnscanmodel_vulnscan set isShown=1 where id = {id}"
     result_list = []
     if isAll:

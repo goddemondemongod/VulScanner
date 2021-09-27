@@ -12,4 +12,8 @@ class EXP:
 
     def exp(self, cmd, content=""):
         poc = POC(ServiceScan(url=self.vuln.url, cookies=self.vuln.cookies))
+<<<<<<< HEAD
         return poc.thinphp_debug(self.vuln.url, cmd)
+=======
+        return poc.thinphp_debug(self.vuln.url, cmd, content)
+>>>>>>> master

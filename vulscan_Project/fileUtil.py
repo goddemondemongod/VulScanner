@@ -22,7 +22,11 @@ def export_file(task_id, mode):
     for i in data_list:
         data = []
         for j in field_names:
+<<<<<<< HEAD
             data.append(str(getattr(i, j)))
+=======
+            data.append(str(getattr(i, j)).strip())
+>>>>>>> master
         csv_data += ",".join(data) + "\n"
     return csv_data.encode("utf-8")
 
@@ -38,6 +42,10 @@ def get_burp_list(module):
     pwd_list = [i.strip() for i in pwd_file.readlines()]
     for u in user_list:
         for p in pwd_list:
+<<<<<<< HEAD
             if not u == "" and not p == "":
+=======
+            if not u == "":
+>>>>>>> master
                 burp_list.append((u.strip(),p.strip()))
     return burp_list

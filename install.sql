@@ -23,7 +23,11 @@ INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`,
 INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (29, 'minio_ssrf', 'MinIO SSRF', 'SSRF', 'warning', 0, 0, '');
 INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (30, 'apache_flink_file', 'Apache Flink 任意文件读取', '任意文件读取', 'warning', 1, 0, '读取文件');
 INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (31, 'zyxel_user', 'Zyxel 硬编码后门账户', '弱密码', 'danger', 0, 0, '');
+<<<<<<< HEAD
 INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (33, 'ssh_burp', 'ssh弱密码', '弱密码', 'danger', 1, 0, '执行命令');
+=======
+INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (33, 'burp_ssh', 'ssh弱密码', '弱密码', 'danger', 1, 0, '执行命令');
+>>>>>>> master
 INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (34, 'apache_solr_velocity', 'Apache Solr Velocity模板远程执行', '命令执行', 'danger', 1, 0, '执行命令');
 INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (35, 'landary_file', '蓝凌OA 任意文件读取', '任意文件读取', 'danger', 1, 0, '读取文件');
 INSERT INTO `scan`.`pocmodel_poc`(`id`, `poc_name`, `real_name`, `type`, `risk`, `hasExp`, `isUse`, `cmd`) VALUES (36, 'daloradius_pwd', 'daloradius弱密码', '弱密码', 'danger', 1, 0, '上传文件');
@@ -209,4 +213,8 @@ insert into pwdmodel_pwd(`system`, `username`, `password`) values ("IBM Storwize
 insert into pwdmodel_pwd(`system`, `username`, `password`) values ("Harbor", "admin", "Harbor12345");
 insert into pwdmodel_pwd(`system`, `username`, `password`) values ("arcgis", "siteadmin", "siteadmin");
 INSERT INTO `scan`.`groupmodel_group`(`id`, `name`, `webvpn`, `cookies`) VALUES (1, '测试', '', '');
+<<<<<<< HEAD
 INSERT INTO `scan`.`groupmodel_group`(`id`, `name`, `webvpn`, `cookies`) VALUES (2, 'IP采集', '', '');
+=======
+INSERT INTO `scan`.`groupmodel_group`(`id`, `name`, `webvpn`, `cookies`) VALUES (2, 'IP采集', '', '');
+>>>>>>> master

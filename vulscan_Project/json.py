@@ -165,7 +165,12 @@ def get_async_result(request: HttpRequest):  # 伪异步，获取实时扫描结
                 service_labels = ""
                 vuln_labels = ""
                 for p in i["ports"]:
+<<<<<<< HEAD
                     service_labels += service_label.format(port=p["port"], title=p["title"], server=p["server"],
+=======
+                    if p["title"]:
+                        service_labels += service_label.format(port=p["port"], title=p["title"], server=p["server"],
+>>>>>>> master
                                                            t_title=(
                                                                p["title"][:10] + "..." if len(p["title"]) > 10 else
                                                                p["title"]), url=p["url"])
@@ -193,6 +198,11 @@ def get_async_result(request: HttpRequest):  # 伪异步，获取实时扫描结
         page_labels = ""
         group = request.GET["group"]
         query = scan.get_query(request)
+<<<<<<< HEAD
+=======
+        request.session["page"] = page
+        request.session["group"] = group
+>>>>>>> master
         result = ScanTask.objects.order_by("id").filter(
             mode="", group=group).extra(where=[query])
         last_page = pageUtil.get_lastpage(result.count(), each_num=each_num)

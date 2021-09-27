@@ -82,7 +82,11 @@ def post(url, data="", cookies="", header=None, timeout=5, session="", files=Non
 
 def get_file_data(filename, filedata, param="file"):  # param: 上传文件的POST参数名
     data = {}
+<<<<<<< HEAD
     data[param] = (filename, filedata)  # 名称，读文件
+=======
+    data[param] = (filename, filedata)  # 名称，文件内容
+>>>>>>> master
     encode_data = encode_multipart_formdata(data)
     return encode_data
 

@@ -11,4 +11,8 @@ class EXP:
 
     def exp(self, cmd, content=""):
         poc = POC(ServiceScan(url=self.vuln.url, cookies=self.vuln.cookies))
+<<<<<<< HEAD
         return ""
+=======
+        return ""
+>>>>>>> master

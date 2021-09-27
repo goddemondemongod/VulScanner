@@ -38,7 +38,11 @@
                         <span class="glyphicon glyphicon-pencil pull-right" style="margin-top: 1px"></span>
                     </td>
                     <td>
+<<<<<<< HEAD
                         <a href="/scan/{{ mode }}/?id={{ i.id }}">
+=======
+                        <a href="/scan/{% if mode != "task" %}{{ mode }}{% else %}service{% endif %}/?id={{ i.id }}">
+>>>>>>> master
                             {% if i.service_process == i.task_count %}
                                 <span class="label label-success">已完成</span>
                             {% else %}
@@ -208,13 +212,21 @@
             $(function () {
                 $(".selectpicker").selectpicker({})
                 $(".selectpicker").selectpicker("refresh")
+<<<<<<< HEAD
                 group = $("select.group").val()
                 group0 = $("select.group").val()
+=======
+                $("select.group").val("{{ group }}")
+                group = group0 = $("select.group").val()
+>>>>>>> master
                 page = {{ page }}
                     ip = ""
                 service_process = 0
                 vuln_process = 0
+<<<<<<< HEAD
                 refresh()
+=======
+>>>>>>> master
                 $(".refresh").hover(function () {
                     $(".glyphicon-refresh").css("animation", "spin 2s linear")
                 }, function () {

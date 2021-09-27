@@ -22,6 +22,10 @@ conf.read((os.path.dirname(os.path.abspath("settings.py"))) + "\config.ini")
 FOFA_EMAIL = conf.get("setting", "FOFA_EMAIL")
 FOFA_KEY = conf.get("setting", "FOFA_KEY")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 port_label = {
     1433: "mssql-1433",
     3306: "mysql-3306",
@@ -82,13 +86,17 @@ class Scan(threading.Thread):
                     else:
                         url = "https://%s:%s" % (self.ip, self.port)
                     resp = requestUtil.get(url, cookies=self.cookies)
+<<<<<<< HEAD
                     print(resp.status_code)
+=======
+>>>>>>> master
                 else:
                     resp = None
                 service_scan = ServiceScan(ip=self.ip, port=self.port, taskid=self.task_id, type=self.type)
             else:
                 if "http" in self.webvpn:
                     vpn = vpnUtil.VPN(vpn_url=self.webvpn)
+<<<<<<< HEAD
                     url = vpn.get_url(self.ip, self.port)
                     print(url)
                     resp = requestUtil.get(url, cookies=self.cookies)
@@ -100,6 +108,17 @@ class Scan(threading.Thread):
                     if not resp:
                         return
                 service_scan = ServiceScan(ip=self.ip, port=self.port, taskid=self.task_id, type=self.type)
+=======
+                    url = vpn.get_url(self.ip, self.port).strip("/")
+                    resp = requestUtil.get(url, cookies=self.cookies)
+                    if "fail" in resp.text or "Not Found" in resp.text or "访问出错" in resp.text:
+                        return
+                else:
+                    url = self.url.strip("/")
+                    resp = requestUtil.get(url, cookies=self.cookies)
+                    service_scan = ServiceScan(ip=self.ip, port=self.port, taskid=self.task_id, type=self.type)
+
+>>>>>>> master
             if resp == None:
                 raise Exception
             try:
@@ -130,21 +149,49 @@ class Scan(threading.Thread):
             try:
                 service_scan.save()
             except Exception as e:
+<<<<<<< HEAD
+=======
+                print(e)
+>>>>>>> master
                 return
 
 
 def port_scan(ips, port_list, isStart=False, description="", group=1, webvpn="", cookies=""):
+<<<<<<< HEAD
     ip_list = IpUtil.get_all_ips(ips)
     if ip_list == []:
         return False
+=======
+    url = ""
+    if not "http" in ips:
+        ip_list = IpUtil.get_all_ips(ips)
+        if ip_list == []:
+            return False
+    else:
+        url = ips
+        ips = re.findall("://([^:/]*)", ips)[0]
+        ip_list = [ips]
+>>>>>>> master
     task = ScanTask(ip_range=ips, task_count=len(ip_list) * len(port_list), isStart=isStart, description=description, group=group)
     task.save()
     tid = task.id
     scan_list = []
     threads = 200 if not "http" in webvpn else 100
+<<<<<<< HEAD
     for i in ip_list:
         for p in port_list:
             scan_list.append(Scan(i, p, tid, cookies=cookies, webvpn=webvpn))
+=======
+    if url != "":
+        scan = Scan(ips, 80, tid, cookies=cookies, webvpn=webvpn, url=url)
+        scan.run()
+        task.service_process  = task.task_count
+        task.save(update_fields=["service_process"])
+        return True
+    for i in ip_list:
+        for p in port_list:
+            scan_list.append(Scan(i, p, tid, cookies=cookies, webvpn=webvpn, url=url))
+>>>>>>> master
             if len(scan_list) % threads == 0:
                 for s in scan_list:
                     s.start()

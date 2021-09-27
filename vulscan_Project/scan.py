@@ -37,6 +37,10 @@ poc_type_list = pocModelUtil.poc_type_list
 conf = configparser.ConfigParser()
 conf.read((os.path.dirname(os.path.abspath("settings.py"))) + "\config.ini")
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 def _auth():  # args 是传入的，需要验证的权限
     def __auth(func):
         def _login(request, *args):
@@ -219,6 +223,7 @@ def task_list(request: HttpRequest, mode="task"):  # 获取任务列表
     if "group" in request.GET:
         group = int(request.GET["group"])
     else:
+<<<<<<< HEAD
         group = 1
     ctx = get_ctx({}, True, query, mode, group)
     ctx["group"] = group
@@ -228,6 +233,26 @@ def task_list(request: HttpRequest, mode="task"):  # 获取任务列表
         page = int(request.GET["page"])
     task_list = ctx["task_list"]
     print(task_list.count())
+=======
+        if "group" in request.session:
+            try:
+                group = int(request.session["group"])
+            except:
+                group = 1
+        else:
+            group = 1
+    ctx = get_ctx({}, True, query, mode, group)
+    ctx["group"] = group
+    each_num = 15 if mode == "task" else 20  # 每页显示行数
+    if "page" in request.GET:
+        page = int(request.GET["page"])
+    else:
+        if "page" in request.session:
+            page = int(request.session["page"])
+        else:
+            page = 1
+    task_list = ctx["task_list"]
+>>>>>>> master
     last_page = pageUtil.get_lastpage(task_list.count(), each_num)
     ctx = pageUtil.get_ctx(ctx, "task_list", task_list[(page - 1) * each_num:page * each_num], page, last_page,
                            "任务", request.get_full_path())

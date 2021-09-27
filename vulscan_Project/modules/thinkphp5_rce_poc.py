@@ -1,12 +1,20 @@
 # -*- coding:utf-8 -*-
 # Thinkphp5命令执行
 from ServiceScanModel.models import ServiceScan
+<<<<<<< HEAD
+=======
+from vulscan_Project.requestClass import Requests
+>>>>>>> master
 
 
 class POC:
     def __init__(self, service: ServiceScan):
         self.service = service
+<<<<<<< HEAD
         self.requestUtil= self.Requests(service.cookies)
+=======
+        self.requestUtil= Requests(service.cookies)
+>>>>>>> master
         self.result = False
 
     def thinkphp_rce(self, url):

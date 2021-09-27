@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 from .. import fileUtil
 from ServiceScanModel.models import ServiceScan
 from ..requestClass import Requests, session
 
 class POC:
+<<<<<<< HEAD
     def __init__(self, service: ServiceScan):
+=======
+    def __init__(self, service: ServiceScan = None):
+>>>>>>> master
         self.service = service
         self.requestUtil = Requests(service.cookies)
         self.result = False

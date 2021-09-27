@@ -10,7 +10,11 @@ class POC:
     def __init__(self, service: ServiceScan):
         self.service = service
         self.requestUtil = Requests(service.cookies)
+<<<<<<< HEAD
         self.result = False
+=======
+        self.result = ""
+>>>>>>> master
 
     def rce(self, cmd="whoami"):
         resp = self.requestUtil.post(self.service.url + "/webmail/basic/",

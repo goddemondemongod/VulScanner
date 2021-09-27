@@ -40,7 +40,11 @@ def get_results(task_id, isAll=False, page=0, each_num=0):  # 获取扫描结果
 def ip_scan(location):
     location = html.escape(location)
     resp = requestUtil.get(api_url + location)
+<<<<<<< HEAD
     # print(resp.text)
+=======
+    print(resp.text)
+>>>>>>> master
     results = (re.findall(
         '<td height="25" bgcolor="#FFFFFF" style="text-align: center">(.*?)</td><td bgcolor="#FFFFFF" style="text-align: center">(.*?)</td>',
         resp.text))

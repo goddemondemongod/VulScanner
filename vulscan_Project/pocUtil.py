@@ -28,7 +28,11 @@ class Poc(threading.Thread):
                 if not type(fingerprint_result) == bool:
                     self.service.speciality = fingerprint_result
                 self.result = poc()
+<<<<<<< HEAD
                 if type(self.result) == tuple:
+=======
+                if type(self.result) == tuple:  # 如果为元组，则保存传入的第二个变量，作为特征
+>>>>>>> master
                     self.specify = self.result[1]
                     self.result = self.result[0]
                 else:
@@ -36,7 +40,11 @@ class Poc(threading.Thread):
                 if not type(self.result) == list:
                     self.result = []
                 elif len(self.result) > 1:
+<<<<<<< HEAD
                     if len(self.result) == 2:
+=======
+                    if len(self.result) == 2:   # 如果为2，则漏洞等级为默认等级，否则传入自定义等级
+>>>>>>> master
                         self.result.append(self.risk)
                     self.result.append(self.module)
                     self.result.append(self.specify)
