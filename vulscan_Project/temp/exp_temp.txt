@@ -1,4 +1,3 @@
-
 from VulnScanModel.models import VulnScan
 from ServiceScanModel.models import ServiceScan
 from vulscan_Project.requestClass import Requests, session
