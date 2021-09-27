@@ -1,0 +1,6 @@
+admin:admin
+admin:123456
+admin:s3cret
+admin:password
+root:password
+admin:221117

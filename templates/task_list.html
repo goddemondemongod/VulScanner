@@ -1,0 +1,382 @@
+{% extends "table.html" %}
+{% block tablebody %}
+
+    <style>
+        .unactive {
+            display: none;
+        }
+    </style>
+    <div class="all-table">
+        <table class="table table-hover task-table">
+            <tr class="info-tool" style="background-color: #002c55">
+                <th class="col-md-1">序号</th>
+                {% if mode != 'fofa' %}
+                    <th class="col-md-3">扫描范围</th>
+                    <th class="col-md-2">任务描述</th>
+                    <th class="col-md-2">服务扫描</th>
+                    <th class="col-md-2">漏洞扫描</th>
+                    <th class="col-md-1">移动</th>
+                    <th class="col-md-1">删除</th>
+                {% else %}
+                    <th class="col-md-3">查询语句</th>
+                    <th class="col-md-2">任务描述</th>
+                    <th class="col-md-2">服务扫描</th>
+                    <th class="col-md-2">漏洞扫描</th>
+                    <th class="col-md-1">创建日期</th>
+                    <th class="col-md-1">删除</th>
+                {% endif %}
+
+            </tr>
+            {% for i in task_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong style="color: crimson">{{ i.ip_range }}</strong></td>
+                    <td>
+                        <input class="col-md-10 desc unactive" value="{{ i.description }}" style="height: 22px"
+                               name="description" id="{{ i.id }} "/>
+                        <span class="text-warning">{{ i.description }}</span>
+                        <span class="glyphicon glyphicon-pencil pull-right" style="margin-top: 1px"></span>
+                    </td>
+                    <td>
+                        <a href="/scan/{% if mode != "task" %}{{ mode }}{% else %}service{% endif %}/?id={{ i.id }}">
+                            {% if i.service_process == i.task_count %}
+                                <span class="label label-success">已完成</span>
+                            {% else %}
+                                <span class="label label-warning">未完成</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/scan/vuln/?id={{ i.id }}">
+                            {% if i.vuln_process == i.vuln_count and i.vuln_count != 0 %}
+                                <span class="label label-success">已完成</span>
+                            {% else %}
+                                <span class="label label-warning">未完成</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% if mode == "task" %}
+                        <td>
+                            <a class="new-btn" href="javascript:void(0)"><span
+                                    class=" glyphicon glyphicon-circle-arrow-right"
+                                    onclick='move("{{ i.id }}")'
+                                    aria-hidden="true"></span></a>
+                        </td>
+                    {% else %}
+                        <td>{{ i.start_time }}</td>
+                    {% endif %}
+                    <td>
+                        <a class="new-btn" href="javascript:void(0)"><span class="glyphicon glyphicon-trash"
+                                                                           onclick='confirm(del, "{{ i.id }}")'
+                                                                           aria-hidden="true"></span></a>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+        {% if mode != "task" %}
+            <div class="text-center foot-block">
+                <ul class="pagination">
+                    <li><a href="{{ page_url }}{{ page | add:notfirst }}">&laquo;</a></li>
+                    {% for i in pages %}
+                        {% if i != '...' %}
+                            <li class="{% if i == page %}active{% endif %}"><a
+                                    href="{{ page_url }}{{ i }}">{{ i }}</a></li>
+                        {% else %}
+                            <li><span>...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li><a href="{{ page_url }}{{ page | add:notlast }}">&raquo;</a></li>
+                </ul>
+            </div>
+        {% else %}
+            <div class="text-center foot-block">
+                <ul class="pagination">
+                    <li><a href="javascript:void(0)" onclick="change_page(-1)">&laquo;</a></li>
+                    {% for i in pages %}
+                        {% if i != '...' %}
+                            <li class="{% if i == page %}active{% endif %}"><a
+                                    href="javascript:void(0)" onclick="change_page({{ i }})">{{ i }}</a></li>
+                        {% else %}
+                            <li><span>...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li><a href="javascript:void(0)" onclick="change_page(0)">&raquo;</a></li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    <div class="modal fade" id="moveModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" style="margin-top: 150px">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                            style="font-size:18px;">
+                        <span style='font-size:18px; margin-top: 4px' class='glyphicon glyphicon-remove'></span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">移动任务</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12" style="margin-bottom: 10px">
+                        <form class="form-horizontal" id="editForm" action="/scan/configure/group/" method="post">
+                            <input type="hidden" id="id" class="config"/>
+                            <div class="row">
+                                <div class="col-md-8 col-md-offset-2">
+                                    <div class="col-md-4 text-right">
+                                        <label class="text-right">分组名称</label>
+                                    </div>
+                                    <div class="col-md-8 ">
+                                        <select class="selectpicker" id="move-group" data-width="180px">
+                                            {#                                        <option></option>#}
+                                            {% for i in groups %}
+                                                <option value="{{ i.id }}">{{ i.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer" style="margin: 10px; border: none">
+                        <button type="button" class="btn btn-primary move-submit">确定</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+    </div>
+    <div class="modal fade" id="configModel" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" style="margin-top: 150px">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                            style="font-size:18px;">
+                        <span style='font-size:18px; margin-top: 4px' class='glyphicon glyphicon-remove'></span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">配置任务</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12" style="margin-bottom: 10px">
+                        <form class="form-horizontal" id="editForm" action="/scan/configure/group/" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" id="id" class="config"/>
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <div class="col-md-4 text-right">
+                                        <label class="text-right">分组名称</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input class="form-control config" id="name"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <div class="col-md-4 text-right">
+                                        <label class="text-right">WEBVPN地址</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input class="form-control config" id="webvpn"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row ">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <div class="col-md-4 text-right">
+                                        <label class="text-right">COOKIES</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input class="form-control config" id="cookies"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer" style="margin: 10px; border: none">
+                        <button type="button" class="btn btn-primary" onclick="config_group()">确定</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+    </div>
+    <script>
+        {% if mode == "task" %}
+            $(function () {
+                $(".selectpicker").selectpicker({})
+                $(".selectpicker").selectpicker("refresh")
+                $("select.group").val("{{ group }}")
+                group = group0 = $("select.group").val()
+                page = {{ page }}
+                    ip = ""
+                service_process = 0
+                vuln_process = 0
+                $(".refresh").hover(function () {
+                    $(".glyphicon-refresh").css("animation", "spin 2s linear")
+                }, function () {
+                    $(".glyphicon-refresh").css("animation", "")
+                })
+            })
+
+            function refresh() {
+                if (group !== group0) {
+                    page = 1
+                }
+                $.get("/json/refresh/", {
+                    "mode": "task",
+                    "page": page,
+                    "group": group,
+                    "ip": ip,
+                    "service": service_process,
+                    "vuln": vuln_process,
+                }, function (data) {
+                    group0 = group
+                    data = $.parseJSON(data)
+                    $(".all-table").html(data["html"])
+                    $(".glyphicon-pencil").click(function () {
+                        $(this).siblings("input").toggleClass("unactive")
+                        $(this).siblings(".text-warning").toggleClass("unactive")
+                    })
+                    $(".desc").blur(function () {
+                        if (!$(this).hasClass("unactive")) {
+                            submit($(this))
+                        }
+                    })
+
+                    $(".desc").keypress(function (event) {  /*绑定回车事件*/
+                        if (event.which === 13) {
+                            submit($(this))
+                        }
+                    })
+                })
+                refresh_groups()
+            }
+
+            function clear_filter() {
+                ip = ""
+                service_process = 0
+                vuln_process = 0
+                refresh()
+            }
+
+            function filter() {
+                ip = $("#ip").val()
+                service_process = $("[name=service]").val()
+                vuln_process = $("[name=vuln]").val()
+                refresh()
+            }
+
+            function add() {
+                $('.add-group').toggleClass('unactive');
+                $('.option-group').toggleClass('unactive');
+            }
+
+            function add_group() {
+                $.get("/scan/add/group/", {
+                    "name": $("#group-name").val()
+                }, function () {
+                    refresh_groups()
+                    add()
+                })
+            }
+
+            function refresh_groups() {
+                $.get("/json/refresh/", {
+                    "mode": "group"
+                }, function (data) {
+                    data = $.parseJSON(data)
+                    $(".selectpicker").html(data["html"])
+                    $(".selectpicker").selectpicker("refresh")
+                    $(".selectpicker").selectpicker('val', group)
+                    $("#group-name").val("")
+                })
+            }
+
+            function config_group() {
+                $.post("/scan/config/group/", {
+                    "csrfmiddlewaretoken": $("[name=csrfmiddlewaretoken]").val(),
+                    "gid": $(".config#id").val(),
+                    "name": $(".config#name").val(),
+                    "webvpn": $(".config#webvpn").val(),
+                    "cookies": $(".config#cookies").val(),
+                }, function () {
+                    $("#configModel").modal("hide")
+                    refresh()
+                })
+            }
+
+            function move(id) {
+                $("#moveModel").modal("show")
+                $(".move-submit").on("click", function () {
+                        $.get("/scan/move/group/", {
+                            "tid": id,
+                            "gid": $("#move-group").val()
+                        }, function () {
+                            refresh();
+                            $(".move-submit").unbind("click")
+                            $("#moveModel").modal("hide")
+                        })
+                    }
+                )
+            }
+
+            function change_page(p) {
+                last_page =
+                {{ last_page }}
+                if (p === 0) {
+                    page = page + 1
+                } else if (p === -1) {
+                    page = page - 1
+                } else {
+                    page = p
+                }
+                if (page < 1) {
+                    page = 1
+                } else if (page > last_page) {
+                    page = last_page
+                }
+                refresh()
+            }
+
+        {% endif %}
+
+        $(".glyphicon-pencil").click(function () {
+            $(this).siblings("input").toggleClass("unactive")
+            $(this).siblings(".text-warning").toggleClass("unactive")
+        })
+
+
+        $("input.config").keypress(function (event) {
+            if (event.which === 13) {
+                config_group()
+            }
+        })
+
+
+        function submit(input) {
+            $.get("/json/edit/", {
+                "id": input.attr("id"),
+                "mode": "task",
+                "description": input.val()
+            })
+            input.toggleClass("unactive")
+            input.siblings(".text-warning").text(input.val())
+            input.siblings(".text-warning").toggleClass("unactive")
+        }
+
+        $(".desc").blur(function () {
+            if (!$(this).hasClass("unactive")) {
+                submit($(this))
+            }
+        })
+
+        $(".desc").keypress(function (event) {  /*绑定回车事件*/
+            if (event.which === 13) {
+                submit($(this))
+            }
+        })
+    </script>
+{% endblock %}

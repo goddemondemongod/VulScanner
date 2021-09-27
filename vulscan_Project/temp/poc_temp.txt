@@ -1,0 +1,24 @@
+from .. import fileUtil
+from ServiceScanModel.models import ServiceScan
+from ..requestClass import Requests, session
+
+class POC:
+    def __init__(self, service: ServiceScan = None):
+        self.service = service
+        self.requestUtil = Requests(service.cookies)
+        self.result = False
+
+
+    def fingerprint(self):
+        try:
+            return True
+        except:
+            return False
+
+
+    def poc(self):
+        try:
+            if self.result:
+                return ["{vuln}"]
+        except:
+            return []
