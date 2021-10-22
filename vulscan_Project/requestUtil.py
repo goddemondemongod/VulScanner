@@ -17,8 +17,10 @@ headers = {
 
 
 def get_cookies(cookie_str):
-    cookie_dict = {i.split("=")[0].strip(): i.split("=")[-1].strip() for i in cookie_str.split(";")}
+    print(cookie_str)
+    cookie_dict = {i.split("=")[0].strip(): "=".join(i.split("=")[1:]).strip() for i in cookie_str.split(";")}
     return cookie_dict
+
 
 
 def get(url, cookies="", header=None, timeout=10, session=""):
